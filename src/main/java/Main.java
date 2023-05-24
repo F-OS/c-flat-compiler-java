@@ -1,17 +1,53 @@
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
-public class Main {
-    public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.print("Hello and welcome!");
+import scanner.Token;
+import scanner.Tokenizer;
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Scanner;
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
-        }
-    }
+public enum Main {
+	;
+
+	public static void main(String[] args) {
+		if (args.length > 1) {
+			System.out.println("Usage: interpreter [script]");
+			System.exit(1);
+		} else if (args.length == 1) {
+            Main.runFile(args[0]);
+		} else {
+            Main.runPrompt();
+		}
+	}
+
+	private static void runFile(String path) {
+		String code = "";
+		try {
+			List<String> lines = Files.readAllLines(Path.of(path));
+			code = String.join("\n", lines);
+		} catch (IOException e) {
+			System.out.println("The file " + path + " is not valid or you do not have correct permissions.");
+		}
+		runcode(code);
+	}
+
+	private static void runPrompt() {
+		Scanner reader = new Scanner(System.in, StandardCharsets.UTF_8);
+		while (true) {
+			System.out.print("> ");
+			String line = reader.nextLine();
+			if (line != null && !line.isEmpty()) {
+                Main.runcode(line);
+			} else {
+				break;
+			}
+		}
+	}
+
+	private static void runcode(String line) {
+		Tokenizer tokenizer = new Tokenizer(line);
+		List<Token> tokens = tokenizer.tokenize();
+	}
 }

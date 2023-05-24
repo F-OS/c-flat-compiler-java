@@ -8,33 +8,33 @@ package scanner.token;
 
 import scanner.Token;
 
-public final class Number extends Token {
+public final class NumbTok extends Token {
 	private final possible_states states;
 	private final long integer;
 	private final double floating;
 
-	public Number(int line, int character, double floating) {
+	public NumbTok(int line, int character, double floating) {
 		super(line, character);
 		states = possible_states.isfloating;
 		this.floating = floating;
 		integer = Long.MAX_VALUE;
 	}
 
-	public Number(int line, int character, long integer) {
+	public NumbTok(int line, int character, long integer) {
 		super(line, character);
 		states = possible_states.isinteger;
 		this.integer = integer;
 		floating = Double.NaN;
 	}
 
-	public Number(int line, int character) {
+	public NumbTok(int line, int character) {
 		super(line, character);
 		states = possible_states.isnull;
 		integer = Long.MAX_VALUE;
 		floating = Double.NaN;
 	}
 
-	public Number() {
+	public NumbTok() {
 		super(-1, -1);
 		states = possible_states.isnull;
 		integer = Long.MAX_VALUE;
@@ -77,18 +77,18 @@ public final class Number extends Token {
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
 
-		Number number = (Number) o;
+		NumbTok number = (NumbTok) o;
 
 		switch (states) {
 
 			case isinteger -> {
-				if (((Number) o).states != possible_states.isinteger) {
+				if (((NumbTok) o).states != possible_states.isinteger) {
 					return false;
 				}
 				if (integer == number.integer) return true;
 			}
 			case isfloating -> {
-				if (((Number) o).states != possible_states.isfloating) {
+				if (((NumbTok) o).states != possible_states.isfloating) {
 					return false;
 				}
 				if (Double.compare(number.floating, floating) != 0) return true;
