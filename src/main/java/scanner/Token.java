@@ -22,12 +22,12 @@ public class Token {
 
 	public Token(int line, int character) {
 		this.line = line;
-		this.charnum = character;
+		charnum = character;
 	}
 
 	public Token() {
-		this.line = -1;
-		this.charnum = -1;
+		line = -1;
+		charnum = -1;
 	}
 
 	public Location getTokenLoc() {
@@ -57,4 +57,3 @@ public class Token {
 	public record Location(int line, int character) {
 	}
 }
-

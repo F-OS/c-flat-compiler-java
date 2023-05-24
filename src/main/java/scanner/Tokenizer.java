@@ -19,7 +19,7 @@ package scanner;
 import scanner.token.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +35,7 @@ public class Tokenizer {
 	private final String str;
 	private final char[] strBytes;
 	private final int strLen;
-	private final Map<String, Class> primitiveMap;
+	private final Map<String, Class<?>> primitiveMap;
 	private final Map<String, String> escapeSequences;
 
 	private int strIdx;
@@ -59,7 +59,6 @@ public class Tokenizer {
 	}
 
 	public ArrayList<Token> tokenize() {
-		// Start off with a pretty large size.
 		ArrayList<Token> tokens = new ArrayList<>(INITIAL_TOK_LEN);
 		while (strIdx < strLen) {
 			skipWhitespace();
@@ -72,9 +71,9 @@ public class Tokenizer {
 
 	private Token getNextToken() {
 		if (matchesPrimitive()) {
-			Map.Entry<String, Class> newtok = getPrimitiveToken();
+			Map.Entry<String, Class<?>> newtok = getPrimitiveToken();
 			charForward(newtok.getKey().length());
-			return createTokenClass(newtok.getValue(), new ArrayList<>(Arrays.asList(Integer.valueOf(line), Integer.valueOf(character))));
+			return createTokenClassChecked(newtok.getValue(), new ArrayList<>(List.of(line, character)));
 		} else if (isCharLiteral()) {
 			return new CharTok(line, character, parseCharacterLiteral());
 		} else if (isIdentifier()) {
@@ -93,6 +92,46 @@ public class Tokenizer {
 		}
 	}
 
+	private Token createTokenClassChecked(Class<?> value, ArrayList<Object> args) {
+		if (Primitive.class.isAssignableFrom(value)) {
+			Class<Token> klass = (Class<Token>) value;
+			return createTokenClass(klass, args);
+		} else {
+			throw new AssertionError("You put a non-token in the token mapping. Bad.");
+		}
+	}
+
+	private boolean matchesPrimitive() {
+		for (Map.Entry<String, Class<?>> item : primitiveMap.entrySet()) {
+			if (str.startsWith(item.getKey(), strIdx)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private Map.Entry<String, Class<?>> getPrimitiveToken() {
+		Map.Entry<String, Class<?>> longest = entry("", Object.class);
+		for (Map.Entry<String, Class<?>> item : primitiveMap.entrySet()) {
+			if (str.startsWith(item.getKey(), strIdx)) {
+				if (item.getKey().length() > longest.getKey().length()) {
+					longest = item;
+				}
+			}
+		}
+		return longest;
+	}
+
+	private <T extends Token> T createTokenClass(Class<Token> tokenClass, ArrayList<Object> parameters) {
+		try {
+			return (T) tokenClass.getDeclaredConstructor(ArrayList.class).newInstance(parameters);
+		} catch (Exception e) {
+			// Handle any exceptions that may occur during instantiation
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	private String parseString() {
 		StringBuilder stringLiteral = new StringBuilder(64);
 		charForward(1);
@@ -102,7 +141,7 @@ public class Tokenizer {
 				String key = String.valueOf(strBytes[strIdx]);
 				if (escapeSequences.containsKey(key)) {
 					charForward(escapeSequences.get(key).length());
-					stringLiteral.append((escapeSequences.get(key)).charAt(0));
+					stringLiteral.append(escapeSequences.get(key).charAt(0));
 				} else {
 					charForward(1);
 					stringLiteral.append(key.charAt(0));
@@ -123,6 +162,7 @@ public class Tokenizer {
 		}
 		return stringLiteral.toString();
 	}
+
 
 	private long parseInteger() {
 		Matcher match = Tokenizer.GET_INTEGER.matcher(str.substring(strIdx));
@@ -145,7 +185,7 @@ public class Tokenizer {
 	}
 
 	private void skipWhitespace() {
-		while (isWhitespace(strBytes[strIdx])) {
+		while (Tokenizer.isWhitespace(strBytes[strIdx])) {
 			if (strBytes[strIdx] == '\n' || strBytes[strIdx] == '\r') {
 				charForward(1);
 				character = 0;
@@ -171,46 +211,12 @@ public class Tokenizer {
 	}
 
 	private static boolean isWhitespace(char in) {
-		if (in == '\n' || in == '\t' || in == ' ' || in == '\r') {
-			return true;
-		}
-		return Character.isWhitespace(in);
+		return in == '\n' || in == '\t' || in == ' ' || in == '\r' || Character.isWhitespace(in);
 	}
 
 	private void charForward(int i) {
 		character += i;
 		strIdx += i;
-	}
-
-	private boolean matchesPrimitive() {
-		for (Map.Entry<String, Class> item : primitiveMap.entrySet()) {
-			if (str.startsWith(item.getKey(), strIdx)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private Map.Entry<String, Class> getPrimitiveToken() {
-		Map.Entry<String, Class> longest = entry("", Object.class);
-		for (Map.Entry<String, Class> item : primitiveMap.entrySet()) {
-			if (str.startsWith(item.getKey(), strIdx)) {
-				if (item.getKey().length() > longest.getKey().length()) {
-					longest = item;
-				}
-			}
-		}
-		return longest;
-	}
-
-	private <T extends Token> T createTokenClass(Class<T> tokenClass, ArrayList<Object> parameters) {
-		try {
-			return tokenClass.getDeclaredConstructor(ArrayList.class).newInstance(parameters);
-		} catch (Exception e) {
-			// Handle any exceptions that may occur during instantiation
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	private boolean isCharLiteral() {
