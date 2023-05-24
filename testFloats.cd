@@ -1,0 +1,5 @@
+fun main()
+{
+    var i: float = 0;
+    i /= 0.5;
+}

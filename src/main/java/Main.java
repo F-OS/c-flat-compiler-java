@@ -1,3 +1,6 @@
+import AST.ASTRoot;
+import AST.Declaration;
+import parser.Parser;
 import scanner.Token;
 import scanner.Tokenizer;
 
@@ -5,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -47,5 +51,7 @@ public class Main {
 	private static void runcode(String line) {
 		Tokenizer tokenizer = new Tokenizer(line);
 		List<Token> tokens = tokenizer.tokenize();
+		Parser parserObj = new Parser((ArrayList<Token>) tokens);
+		List<Declaration> tree = parserObj.parseProgram();
 	}
 }

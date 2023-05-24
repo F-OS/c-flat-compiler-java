@@ -6,6 +6,10 @@
 
 package visitor;
 
+import AST.Declarations.*;
+import AST.Expressions.*;
+import AST.Statements.*;
+
 public interface Visitor {
 	Object visit(Lambda node);
 
@@ -60,8 +64,6 @@ public interface Visitor {
 	Object visit(Try node);
 
 	Object visit(Throw node);
-
-	Object visit(ExprStatement node);
 
 	Object visit(Block node);
 

@@ -6,7 +6,7 @@
 
 package parser;
 
-public class ErrorTable {
+class ErrorTable {
 	String ERROR_IF_CONDITIONAL = "Error: Each if statement must contain a conditional enclosed in parentheses.";
 
 	String ERROR_EOF = "Unexpected EOF";
@@ -88,7 +88,7 @@ public class ErrorTable {
 			"Error: An array length expression must be followed by an assignment operator and initializer list or a semicolon.";
 
 	String ERROR_ARRAY_BRACES =
-			"Error: An array definition must be followed by either an assignment, a length in braces, or a semicolon.";
+			"Error: An array definition must be followed by either a length in braces or a colon.";
 
 	String ERROR_ARRAY_INITIALIZER = "Error: Unexpected token in array initializer list.";
 
@@ -121,4 +121,13 @@ public class ErrorTable {
 	String ERROR_PARAM_DEFINITION_MISSING_COLON =
 			"A parameter definition must contain an identifier followed by a colon and then a typename.";
 
+	String ERROR_CLASS_INHERITANCE = "Error: Expected either a single class or a list of classes in parentheses to inherit from.";
+
+	String ERROR_TERNARY_COLON = "Expected colon in ternary expression.";
+
+	String ERROR_LIST_CLOSING_BRACE = "Expected closing brace on list access.";
+
+	String ERROR_RETURN_SEMICOLON = "Expected semicolon after return.";
+
+	String ERROR_INVALID_SCOPE = "Invalid scope. Expected one of: [list access, variable access, scope access, call].";
 }

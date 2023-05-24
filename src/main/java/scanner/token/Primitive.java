@@ -11,10 +11,8 @@ import scanner.Token;
 /**
  * This class contains all tokens that do not store data,
  * such as tokens delimiting code blocks, statements and function parameters.
- *
- * @SuppressWarnings("SameParameterValue") is used because these classes are all created with reflection.
+ * SuppressWarnings("SameParameterValue") is used because these classes are all created with reflection.
  */
-@SuppressWarnings("MissingJavadoc")
 public class Primitive {
 
 	Primitive() throws InstantiationException {
@@ -27,20 +25,6 @@ public class Primitive {
 		return "Token{type=" + getClass().getSimpleName() + '}';
 	}
 
-	public static final class EndOfFile extends Token {
-		public EndOfFile() {
-			this(-1, -1);
-		}
-
-		public EndOfFile(int curline, int curcharacter) {
-			super(curline, curcharacter);
-		}
-
-		@Override
-		public String toString() {
-			return "Token{type=EndOfFile, " + ", line=" + line + ", character=" + charnum + '}';
-		}
-	}
 
 	@SuppressWarnings("SameParameterValue")
 	public static final class LParen extends Token {
@@ -48,7 +32,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		LParen(int curline, int curcharacter) {
+		public LParen(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -64,7 +48,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		RParen(int curline, int curcharacter) {
+		public RParen(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -80,7 +64,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		LBracket(int curline, int curcharacter) {
+		public LBracket(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -96,7 +80,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		RBracket(int curline, int curcharacter) {
+		public RBracket(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -112,7 +96,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		LBrace(int curline, int curcharacter) {
+		public LBrace(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -128,7 +112,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		RBrace(int curline, int curcharacter) {
+		public RBrace(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -144,7 +128,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Semicolon(int curline, int curcharacter) {
+		public Semicolon(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -160,7 +144,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Comma(int curline, int curcharacter) {
+		public Comma(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -176,7 +160,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Assign(int curline, int curcharacter) {
+		public Assign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -192,7 +176,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Dot(int curline, int curcharacter) {
+		public Dot(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -208,7 +192,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		AddAssign(int curline, int curcharacter) {
+		public AddAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -224,7 +208,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		SubAssign(int curline, int curcharacter) {
+		public SubAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -240,7 +224,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		MulAssign(int curline, int curcharacter) {
+		public MulAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -256,7 +240,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		DivAssign(int curline, int curcharacter) {
+		public DivAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -272,7 +256,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		ModAssign(int curline, int curcharacter) {
+		public ModAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -288,7 +272,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		PowAssign(int curline, int curcharacter) {
+		public PowAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -304,7 +288,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		LShiftAssign(int curline, int curcharacter) {
+		public LShiftAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -320,7 +304,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		RShiftAssign(int curline, int curcharacter) {
+		public RShiftAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -336,7 +320,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		AndAssign(int curline, int curcharacter) {
+		public AndAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -352,7 +336,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		OrAssign(int curline, int curcharacter) {
+		public OrAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -368,7 +352,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		XorAssign(int curline, int curcharacter) {
+		public XorAssign(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -384,7 +368,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Inc(int curline, int curcharacter) {
+		public Inc(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -400,7 +384,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Dec(int curline, int curcharacter) {
+		public Dec(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -416,7 +400,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Add(int curline, int curcharacter) {
+		public Add(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -432,7 +416,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Sub(int curline, int curcharacter) {
+		public Sub(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -448,7 +432,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Mul(int curline, int curcharacter) {
+		public Mul(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -464,7 +448,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Div(int curline, int curcharacter) {
+		public Div(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -480,7 +464,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Pow(int curline, int curcharacter) {
+		public Pow(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -496,7 +480,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Mod(int curline, int curcharacter) {
+		public Mod(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -512,7 +496,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		GreaterThan(int curline, int curcharacter) {
+		public GreaterThan(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -528,7 +512,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		GreaterEqual(int curline, int curcharacter) {
+		public GreaterEqual(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -544,7 +528,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		EqualTo(int curline, int curcharacter) {
+		public EqualTo(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -560,7 +544,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		NotEqualTo(int curline, int curcharacter) {
+		public NotEqualTo(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -576,7 +560,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		LessEqual(int curline, int curcharacter) {
+		public LessEqual(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -592,7 +576,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		LessThan(int curline, int curcharacter) {
+		public LessThan(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -608,7 +592,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		And(int curline, int curcharacter) {
+		public And(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -624,7 +608,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Or(int curline, int curcharacter) {
+		public Or(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -640,7 +624,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Not(int curline, int curcharacter) {
+		public Not(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -656,7 +640,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		QMark(int curline, int curcharacter) {
+		public QMark(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -672,7 +656,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Colon(int curline, int curcharacter) {
+		public Colon(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -688,7 +672,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Bitwise_And(int curline, int curcharacter) {
+		public Bitwise_And(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -704,7 +688,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Bitwise_Or(int curline, int curcharacter) {
+		public Bitwise_Or(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -720,7 +704,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Bitwise_Not(int curline, int curcharacter) {
+		public Bitwise_Not(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -736,7 +720,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Bitwise_Xor(int curline, int curcharacter) {
+		public Bitwise_Xor(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -752,7 +736,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Bitwise_LShift(int curline, int curcharacter) {
+		public Bitwise_LShift(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 
@@ -768,7 +752,7 @@ public class Primitive {
 			this(-1, -1);
 		}
 
-		Bitwise_RShift(int curline, int curcharacter) {
+		public Bitwise_RShift(int curline, int curcharacter) {
 			super(curline, curcharacter);
 		}
 

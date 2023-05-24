@@ -6,7 +6,7 @@
 
 package parser;
 
-public class ParserException extends RuntimeException {
+public final class ParserException extends RuntimeException {
 	ParserException() {
 		super("Unlabelled exception");
 	}

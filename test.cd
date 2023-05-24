@@ -1,0 +1,263 @@
+// This code should all parse and type fine.
+struct Vec {
+    var x: int;
+    var y: int;
+}
+
+class vehicle {
+    var speed: int;
+    var location: Vec;
+}
+
+class Wheel {
+    var tire: Int = 1;
+}
+
+class Engine {
+    var power: Int = 3600;
+}
+
+class car: vehicle {
+    var engine: Engine;
+    array wheels[4]: Wheel = {Wheel(), Wheel(), Wheel(), Wheel()};
+}
+
+class truck: (car, vehicle)
+{
+    fun vroom_vroom(): void
+    {
+        print("Car go vroom vroom");
+    }
+}
+
+enum letters {
+    A,
+    B,
+    C,
+    D,
+    E,
+}
+
+fun main(): void
+{
+    // This is a comment test
+    var x: Int = 50; // This is an EOL comment test
+    var y: Int = 54;
+
+    array nolen: int;
+    array len_but_def[10]: int;
+    array def_but_len: int = {1, 2, 3};
+    var mul_by_two: Function = lambda (x: int): int {return x * 2;}
+    goto labeltest;
+    for(var i: Int = 0; i < 25; i++)
+    {
+        print(i);
+    }
+    labeltest:
+    for(var i: Int = 0;)
+    {
+        if(i >= 25)
+        {
+            break;
+        }
+        i++;
+    }
+    var casetest: int = 5;
+
+    switch(casetest)
+    {
+        case 1:
+        {
+            print("Less than 10");
+        }
+        case 2:
+        {
+            print("Less than 10");
+        }
+        case 3:
+        {
+            print("Less than 10");
+        }
+        case 4:
+        {
+            print("Less than 10");
+        }
+        case 5:
+        {
+            print("Less than 10");
+        }
+        case 6:
+        {
+            print("Less than 10");
+        }
+        case 7:
+        {
+            print("Less than 10");
+        }
+        case 8:
+        {
+            print("Less than 10");
+        }
+        case 9:
+        {
+            print("Less than 10");
+        }
+        default:
+        {
+          print("Not less than 10");
+        }
+    }
+    var i: int = 0;
+    i += 5;
+    i -= 1;
+    i *= 2;
+    i /= 0.5;
+    i %= 2;
+    i **= 40;
+    i += 1;
+    i &= 1;
+    i >>= 1;
+    i <<= 2;
+    i |= 100;
+    i ^= 3;
+    i++;
+    i--;
+    --i;
+    ++i;
+
+    while(a == 0 && b == 0)
+    {
+        print(c);
+    }
+
+    for(; i <= 25)
+    {
+        i++;
+    }
+
+    array collection[3]: Int = {1, 2, 3};
+
+    foreach(item : collection)
+    {
+        print(item);
+    }
+    while(x > 0)
+    {
+        x--;
+    }
+    if(x == 3 || y > 48)
+    {
+        return x + 1;
+    }
+    else
+    {
+        return x + 1 ^ y + 2 ** 7;
+    }
+    if(x != 3 && y > 48)
+    {
+        return x + 1;
+    }
+
+    if(--x == 3 || y > 48)
+    {
+        return x + 1;
+    }
+    if(x == 3 || y++ > 48)
+    {
+        var a: bool = !(x != 3)
+        var b: int = x - 2;
+        b = b / 2;
+        return x + 1 | 2 + 3 ^ 4 & 5 | 4;
+    }
+    var obj: Vehicle = Truck();
+    var character: char = '\n';
+    var im_a_normal_char: char = 'c';
+    var funni_prog: string = "hello world";
+    var ternary: int = 2 == 3 ? 3 : 4;
+    obj.vroom_vroom();
+    return ~x;
+    do
+    {
+        i++;
+        if(i == -1)
+        {
+            continue;
+        }
+        i -= -1;
+    } while(i > -80 && i < 80);
+    throw Unreachable(a, b, c);
+    return;
+
+    try {
+        print(1/0);
+    } catch(e: dividebyzero)
+    {
+        print(e);
+    }
+}
+
+// Struct declaration
+struct Point {
+    var x: int;
+    var y: int;
+}
+
+// Function declaration
+fun calculateDistance(p_one: Point, p_two: Point): float {
+    var dx: int = p_two.x - p_one.x;
+    var dy: int = p_two.y - p_one.y;
+    return sqrt(dx * dx + dy * dy);
+}
+
+// Class declaration with inheritance
+class Shape {
+    var color: string;
+}
+
+class Circle: Shape {
+    var center: Point;
+    var radius: float;
+}
+
+// Enum declaration
+enum Colors {
+    RED,
+    GREEN,
+    BLUE,
+    YELLOW,
+    ORANGE,
+}
+
+// Function definition
+fun printColors() {
+    for (var color: Colors = Colors.RED; color <= Colors.ORANGE; color++) {
+        print(color);
+    }
+}
+
+// Array declaration and initialization
+array values[5]: int = {1, 2, 3, 4, 5};
+
+// Looping over an array
+foreach (value: values) {
+    print(value);
+}
+
+// Conditional statement
+if (values[0] > values[1] && values[1] > values[2]) {
+    print("Values are in descending order.");
+} else {
+    print("Values are not in descending order.");
+}
+
+// Function call
+var distance: float = calculateDistance(Point(0, 0), Point(3, 4));
+print("Distance: " + distance);
+
+// Error handling
+try {
+    var result: float = 1 / 0;
+    print(result);
+} catch (e: DivideByZeroError) {
+    print("Error: " + e);
+}

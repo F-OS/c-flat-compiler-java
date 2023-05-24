@@ -6,6 +6,10 @@
 
 package AST;
 
+import AST.Declarations.*;
+import AST.Expressions.*;
+import AST.Statements.*;
+import TypeAndSymbolAnnotator.Type;
 import visitor.Visitable;
 import visitor.Visitor;
 
@@ -16,7 +20,7 @@ public abstract class ASTRoot implements Visitable {
 
 	private boolean isTyped;
 
-	public ASTRoot(int line, int character) {
+	protected ASTRoot(int line, int character) {
 		this.line = line;
 		this.character = character;
 	}
@@ -33,9 +37,7 @@ public abstract class ASTRoot implements Visitable {
 	}
 
 	@Override
-	public Object accept(Visitor visitor) {
-		throw new UnsupportedOperationException("ASTRoot should be overridden.");
-	}
+	public abstract Object accept(Visitor visitor);
 
 	public String nodeToString(ASTRoot node) {
 		if (node instanceof ArrayDeclaration) {
@@ -58,8 +60,6 @@ public abstract class ASTRoot implements Visitable {
 			return "Continue";
 		} else if (node instanceof DoWhile) {
 			return "Do While";
-		} else if (node instanceof ExprStatement) {
-			return "Expression Statement";
 		} else if (node instanceof For) {
 			return "For";
 		} else if (node instanceof ForEach) {
@@ -111,7 +111,18 @@ public abstract class ASTRoot implements Visitable {
 		} else if (node instanceof Ternary) {
 			return "Ternary";
 		}
-
 		return "";
 	}
+
+	public int getLine() {
+		return line;
+	}
+
+	public int getCharacter() {
+		return character;
+	}
+
+	public record TypedVar(String name, String type) {
+	}
 }
+
