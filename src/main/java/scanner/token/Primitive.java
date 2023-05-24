@@ -8,8 +8,6 @@ package scanner.token;
 
 import scanner.Token;
 
-import java.util.ArrayList;
-
 /**
  * This class contains all tokens which do not store data, such as tokens delimiting code blocks, statements, and function parameters.
  */
@@ -29,10 +27,6 @@ public class Primitive {
 		public EndOfFile(int line, int character) {
 			super(line, character);
 		}
-
-		public EndOfFile(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class LParen extends Token {
@@ -42,10 +36,6 @@ public class Primitive {
 
 		public LParen(int line, int character) {
 			super(line, character);
-		}
-
-		public LParen(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -58,10 +48,6 @@ public class Primitive {
 		public RParen(int line, int character) {
 			super(line, character);
 		}
-
-		public RParen(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class LBracket extends Token {
@@ -71,10 +57,6 @@ public class Primitive {
 
 		public LBracket(int line, int character) {
 			super(line, character);
-		}
-
-		public LBracket(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -88,10 +70,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public RBracket(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class LBrace extends Token {
@@ -101,10 +79,6 @@ public class Primitive {
 
 		public LBrace(int line, int character) {
 			super(line, character);
-		}
-
-		public LBrace(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -118,10 +92,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public RBrace(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class Semicolon extends Token {
@@ -131,10 +101,6 @@ public class Primitive {
 
 		public Semicolon(int line, int character) {
 			super(line, character);
-		}
-
-		public Semicolon(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -148,10 +114,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public Comma(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class Assign extends Token {
@@ -161,10 +123,6 @@ public class Primitive {
 
 		public Assign(int line, int character) {
 			super(line, character);
-		}
-
-		public Assign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -178,10 +136,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public Dot(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class AddAssign extends Token {
@@ -191,10 +145,6 @@ public class Primitive {
 
 		public AddAssign(int line, int character) {
 			super(line, character);
-		}
-
-		public AddAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -208,10 +158,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public SubAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class MulAssign extends Token {
@@ -221,10 +167,6 @@ public class Primitive {
 
 		public MulAssign(int line, int character) {
 			super(line, character);
-		}
-
-		public MulAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -238,10 +180,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public DivAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class ModAssign extends Token {
@@ -251,10 +189,6 @@ public class Primitive {
 
 		public ModAssign(int line, int character) {
 			super(line, character);
-		}
-
-		public ModAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -268,10 +202,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public PowAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class LShiftAssign extends Token {
@@ -281,10 +211,6 @@ public class Primitive {
 
 		public LShiftAssign(int line, int character) {
 			super(line, character);
-		}
-
-		public LShiftAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -298,10 +224,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public RShiftAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class AndAssign extends Token {
@@ -311,10 +233,6 @@ public class Primitive {
 
 		public AndAssign(int line, int character) {
 			super(line, character);
-		}
-
-		public AndAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -328,10 +246,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public OrAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class XorAssign extends Token {
@@ -341,10 +255,6 @@ public class Primitive {
 
 		public XorAssign(int line, int character) {
 			super(line, character);
-		}
-
-		public XorAssign(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -358,10 +268,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public Inc(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class Dec extends Token {
@@ -371,10 +277,6 @@ public class Primitive {
 
 		public Dec(int line, int character) {
 			super(line, character);
-		}
-
-		public Dec(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -386,10 +288,6 @@ public class Primitive {
 		public Add(int line, int character) {
 			super(line, character);
 		}
-
-		public Add(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class Sub extends Token {
@@ -399,10 +297,6 @@ public class Primitive {
 
 		public Sub(int line, int character) {
 			super(line, character);
-		}
-
-		public Sub(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -414,10 +308,6 @@ public class Primitive {
 		public Mul(int line, int character) {
 			super(line, character);
 		}
-
-		public Mul(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class Div extends Token {
@@ -427,10 +317,6 @@ public class Primitive {
 
 		public Div(int line, int character) {
 			super(line, character);
-		}
-
-		public Div(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -442,10 +328,6 @@ public class Primitive {
 		public Pow(int line, int character) {
 			super(line, character);
 		}
-
-		public Pow(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class Mod extends Token {
@@ -455,10 +337,6 @@ public class Primitive {
 
 		public Mod(int line, int character) {
 			super(line, character);
-		}
-
-		public Mod(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -470,10 +348,6 @@ public class Primitive {
 		public GreaterThan(int line, int character) {
 			super(line, character);
 		}
-
-		public GreaterThan(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class GreaterEqual extends Token {
@@ -483,10 +357,6 @@ public class Primitive {
 
 		public GreaterEqual(int line, int character) {
 			super(line, character);
-		}
-
-		public GreaterEqual(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -498,10 +368,6 @@ public class Primitive {
 		public EqualTo(int line, int character) {
 			super(line, character);
 		}
-
-		public EqualTo(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class NotEqualTo extends Token {
@@ -511,10 +377,6 @@ public class Primitive {
 
 		public NotEqualTo(int line, int character) {
 			super(line, character);
-		}
-
-		public NotEqualTo(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -526,10 +388,6 @@ public class Primitive {
 		public LessEqual(int line, int character) {
 			super(line, character);
 		}
-
-		public LessEqual(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class LessThan extends Token {
@@ -539,10 +397,6 @@ public class Primitive {
 
 		public LessThan(int line, int character) {
 			super(line, character);
-		}
-
-		public LessThan(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -554,10 +408,6 @@ public class Primitive {
 		public And(int line, int character) {
 			super(line, character);
 		}
-
-		public And(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class Or extends Token {
@@ -567,10 +417,6 @@ public class Primitive {
 
 		public Or(int line, int character) {
 			super(line, character);
-		}
-
-		public Or(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -582,10 +428,6 @@ public class Primitive {
 		public Not(int line, int character) {
 			super(line, character);
 		}
-
-		public Not(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class QMark extends Token {
@@ -596,10 +438,6 @@ public class Primitive {
 		public QMark(int line, int character) {
 			super(line, character);
 		}
-
-		public QMark(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class Colon extends Token {
@@ -609,10 +447,6 @@ public class Primitive {
 
 		public Colon(int line, int character) {
 			super(line, character);
-		}
-
-		public Colon(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -625,10 +459,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public Bitwise_And(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class Bitwise_Or extends Token {
@@ -638,10 +468,6 @@ public class Primitive {
 
 		public Bitwise_Or(int line, int character) {
 			super(line, character);
-		}
-
-		public Bitwise_Or(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 	}
 
@@ -653,10 +479,6 @@ public class Primitive {
 		public Bitwise_Not(int line, int character) {
 			super(line, character);
 		}
-
-		public Bitwise_Not(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
 	}
 
 	public static final class Bitwise_Xor extends Token {
@@ -666,10 +488,6 @@ public class Primitive {
 
 		public Bitwise_Xor(int line, int character) {
 			super(line, character);
-		}
-
-		public Bitwise_Xor(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}
@@ -683,10 +501,6 @@ public class Primitive {
 			super(line, character);
 		}
 
-		public Bitwise_LShift(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
-		}
-
 	}
 
 	public static final class Bitwise_RShift extends Token {
@@ -696,10 +510,6 @@ public class Primitive {
 
 		public Bitwise_RShift(int line, int character) {
 			super(line, character);
-		}
-
-		public Bitwise_RShift(ArrayList<Object> in) {
-			super((Integer) (in.get(0)), (Integer) (in.get(1)));
 		}
 
 	}

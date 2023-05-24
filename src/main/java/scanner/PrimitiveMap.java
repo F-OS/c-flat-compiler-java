@@ -64,7 +64,7 @@ enum PrimitiveMap {
 	);
 
 	static Map<String, Class<?>> get() {
-		return primitiveMap;
+		return PrimitiveMap.primitiveMap;
 	}
 
 }

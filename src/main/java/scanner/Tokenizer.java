@@ -19,7 +19,6 @@ package scanner;
 import scanner.token.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,7 +58,7 @@ public class Tokenizer {
 	}
 
 	public ArrayList<Token> tokenize() {
-		ArrayList<Token> tokens = new ArrayList<>(INITIAL_TOK_LEN);
+		ArrayList<Token> tokens = new ArrayList<>(Tokenizer.INITIAL_TOK_LEN);
 		while (strIdx < strLen) {
 			skipWhitespace();
 			skipComments();
@@ -73,7 +72,7 @@ public class Tokenizer {
 		if (matchesPrimitive()) {
 			Map.Entry<String, Class<?>> newtok = getPrimitiveToken();
 			charForward(newtok.getKey().length());
-			return createTokenClassChecked(newtok.getValue(), new ArrayList<>(List.of(line, character)));
+			return createTokenClassChecked(newtok.getValue(), line, character);
 		} else if (isCharLiteral()) {
 			return new CharTok(line, character, parseCharacterLiteral());
 		} else if (isIdentifier()) {
@@ -92,12 +91,12 @@ public class Tokenizer {
 		}
 	}
 
-	private Token createTokenClassChecked(Class<?> value, ArrayList<Object> args) {
-		if (Primitive.class.isAssignableFrom(value)) {
+	private Token createTokenClassChecked(Class<?> value, int line, int character) {
+		if (Token.class.isAssignableFrom(value)) {
 			Class<Token> klass = (Class<Token>) value;
-			return createTokenClass(klass, args);
+			return createTokenClass(klass, line, character);
 		} else {
-			throw new AssertionError("You put a non-token in the token mapping. Bad.");
+			throw new AssertionError("Non-primitive tokens should never be included in token mappings.");
 		}
 	}
 
@@ -122,9 +121,9 @@ public class Tokenizer {
 		return longest;
 	}
 
-	private <T extends Token> T createTokenClass(Class<Token> tokenClass, ArrayList<Object> parameters) {
+	private <T extends Token> T createTokenClass(Class<Token> tokenClass, int line, int character) {
 		try {
-			return (T) tokenClass.getDeclaredConstructor(ArrayList.class).newInstance(parameters);
+			return (T) tokenClass.getDeclaredConstructor(int.class, int.class).newInstance(line, character);
 		} catch (Exception e) {
 			// Handle any exceptions that may occur during instantiation
 			e.printStackTrace();
@@ -140,10 +139,9 @@ public class Tokenizer {
 				charForward(1);
 				String key = String.valueOf(strBytes[strIdx]);
 				if (escapeSequences.containsKey(key)) {
-					charForward(escapeSequences.get(key).length());
+					charForward(1);
 					stringLiteral.append(escapeSequences.get(key).charAt(0));
 				} else {
-					charForward(1);
 					stringLiteral.append(key.charAt(0));
 				}
 			} else if (strBytes[strIdx] == '\n' || strBytes[strIdx] == '\r') {
@@ -153,8 +151,8 @@ public class Tokenizer {
 				break;
 			} else {
 				stringLiteral.append(strBytes[strIdx]);
-				charForward(1);
 			}
+			charForward(1);
 			if (strIdx > strLen) {
 				error("Unterminated String Literal.");
 				break;
@@ -165,7 +163,7 @@ public class Tokenizer {
 
 
 	private long parseInteger() {
-		Matcher match = Tokenizer.GET_INTEGER.matcher(str.substring(strIdx));
+		Matcher match = GET_INTEGER.matcher(str.substring(strIdx));
 		if (match.find()) {
 			charForward(match.group(0).length());
 			return Long.parseLong(match.group(0));
@@ -185,7 +183,7 @@ public class Tokenizer {
 	}
 
 	private void skipWhitespace() {
-		while (Tokenizer.isWhitespace(strBytes[strIdx])) {
+		while (strIdx < strLen && isWhitespace(strBytes[strIdx])) {
 			if (strBytes[strIdx] == '\n' || strBytes[strIdx] == '\r') {
 				charForward(1);
 				character = 0;
@@ -196,17 +194,15 @@ public class Tokenizer {
 		}
 	}
 
+
 	private void skipComments() {
 		if (str.startsWith("//", strIdx)) {
 			charForward(2);
-			while (true) {
-				if (strBytes[strIdx] == '\n' || strBytes[strIdx] == '\r') {
-					character = 0;
-					line++;
-					break;
-				}
+			while (strIdx < strLen && (strBytes[strIdx] != '\n' && strBytes[strIdx] != '\r')) {
 				charForward(1);
 			}
+			character = 0;
+			line++;
 		}
 	}
 
@@ -230,7 +226,7 @@ public class Tokenizer {
 			charForward(1);
 			String key = String.valueOf(strBytes[strIdx]);
 			if (escapeSequences.containsKey(key)) {
-				charLit = (escapeSequences.get(key)).charAt(0);
+				charLit = escapeSequences.get(key).charAt(0);
 			} else {
 				charLit = key.charAt(0);
 			}
@@ -252,12 +248,11 @@ public class Tokenizer {
 
 	private String parseIdent() {
 		StringBuilder ident = new StringBuilder(64);
-		while (isIdentifier()) {
+		while (strIdx < strLen && isIdentifier()) {
 			ident.append(strBytes[strIdx]);
 			charForward(1);
 		}
 		return ident.toString();
-
 	}
 
 	private boolean isDigit() {
@@ -265,7 +260,7 @@ public class Tokenizer {
 	}
 
 	private boolean isFloating() {
-		return Tokenizer.IS_FLOATING.matcher(str.substring(strIdx)).matches();
+		return IS_FLOATING.matcher(str.substring(strIdx)).matches();
 	}
 
 	private boolean isString() {
