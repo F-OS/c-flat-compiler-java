@@ -8,39 +8,53 @@ package scanner.token;
 
 import scanner.Token;
 
+/**
+ * Class for storing tokens containing a number.
+ */
 public final class NumbTok extends Token {
 	private final possible_states states;
 	private final long integer;
 	private final double floating;
 
-	public NumbTok(int line, int character, double floating) {
-		super(line, character);
+	/**
+	 * Creates a new character token at the specified line and character, with the specified value.
+	 *
+	 * @param curline      the line in the source code.
+	 * @param curcharacter the character in the source code.
+	 * @param flot         the value.
+	 */
+	public NumbTok(int curline, int curcharacter, double flot) {
+		super(curline, curcharacter);
 		states = possible_states.isfloating;
-		this.floating = floating;
+		floating = flot;
 		integer = Long.MAX_VALUE;
 	}
 
-	public NumbTok(int line, int character, long integer) {
-		super(line, character);
+	/**
+	 * Creates a new character token at the specified line and character, with the specified value.
+	 *
+	 * @param curline      the line in the source code.
+	 * @param curcharacter the character in the source code.
+	 * @param integ        the value.
+	 */
+	public NumbTok(int curline, int curcharacter, long integ) {
+		super(curline, curcharacter);
 		states = possible_states.isinteger;
-		this.integer = integer;
+		integer = integ;
 		floating = Double.NaN;
 	}
 
-	public NumbTok(int line, int character) {
-		super(line, character);
-		states = possible_states.isnull;
-		integer = Long.MAX_VALUE;
-		floating = Double.NaN;
-	}
-
-	public NumbTok() {
+	/**
+	 * @throws InstantiationException if used. NumbTok should not be used without a value, use instanceof instead.
+	 */
+	public NumbTok() throws InstantiationException {
 		super(-1, -1);
-		states = possible_states.isnull;
-		integer = Long.MAX_VALUE;
-		floating = Double.NaN;
+		throw new InstantiationException("No-arg constructors not supported by NumbTok");
 	}
 
+	/**
+	 * @return Whether NumbTok is an integer.
+	 */
 	public boolean isInt() {
 		switch (states) {
 
@@ -50,27 +64,34 @@ public final class NumbTok extends Token {
 			case isfloating -> {
 				return false;
 			}
-			case isnull -> {
-				throw new IllegalStateException("Number token used without being defined.");
-			}
-			default -> throw new IllegalStateException("Unexpected value: " + states);
+			default -> throw new IllegalStateException("Number used without definition.");
 		}
 	}
 
+	/**
+	 * @return NumbTok as a double.
+	 */
 	public double getFloating() {
-		if (states != possible_states.isinteger) {
+		if (states != possible_states.isfloating) {
 			throw new IllegalStateException("Number token used as floating when not floating.");
 		}
 		return floating;
 	}
 
+	/**
+	 * @return NumbTok as an integer.
+	 */
 	public long getInteger() {
-		if (states != possible_states.isfloating) {
+		if (states != possible_states.isinteger) {
 			throw new IllegalStateException("Number token used as integer when not integer.");
 		}
 		return integer;
 	}
 
+	/**
+	 * @param o the object to compare to.
+	 * @return Whether the two objects are equal.
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -100,35 +121,38 @@ public final class NumbTok extends Token {
 		return false;
 	}
 
+	/**
+	 * @return Token{type=Number, state=[integer|floating], [integer|floating]=numb, line=[line], character=[character]}
+	 */
 	public String toString() {
 		switch (states) {
 
 			case isinteger -> {
 				return "Token{type=Number, state=integer, " +
 							   "integer=" + integer +
-							   '}';
+							   ", line=" + line + ", character=" + charnum + '}';
 			}
 			case isfloating -> {
 				return "Token{type=Number, state=floating, " +
 							   "double=" + floating +
-							   '}';
+							   ", line=" + line + ", character=" + charnum + '}';
 
-			}
-			case isnull -> {
-				return "Token{type=Number, state=undef" + '}';
 			}
 			default -> throw new IllegalStateException("Unexpected value: " + states);
 		}
 	}
 
+	/**
+	 * @return A (hopefully unique hash code)
+	 */
 	@Override
 	public int hashCode() {
-		int result;
 		long temp;
-		result = states.hashCode();
+		int result = line;
+		result = 193 * result + charnum;
 		result = 31 * result + (int) (integer ^ (integer >>> 32));
 		temp = Double.doubleToLongBits(floating);
-		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		result = 389 * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 

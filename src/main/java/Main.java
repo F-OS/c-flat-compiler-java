@@ -8,17 +8,15 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 
-public enum Main {
-	;
-
+public class Main {
 	public static void main(String[] args) {
 		if (args.length > 1) {
 			System.out.println("Usage: interpreter [script]");
 			System.exit(1);
 		} else if (args.length == 1) {
-            Main.runFile(args[0]);
+			runFile(args[0]);
 		} else {
-            Main.runPrompt();
+			runPrompt();
 		}
 	}
 
@@ -30,7 +28,7 @@ public enum Main {
 		} catch (IOException e) {
 			System.out.println("The file " + path + " is not valid or you do not have correct permissions.");
 		}
-		runcode(code);
+		Main.runcode(code);
 	}
 
 	private static void runPrompt() {
@@ -39,7 +37,7 @@ public enum Main {
 			System.out.print("> ");
 			String line = reader.nextLine();
 			if (line != null && !line.isEmpty()) {
-                Main.runcode(line);
+				runcode(line);
 			} else {
 				break;
 			}

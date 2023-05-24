@@ -16,42 +16,25 @@
 
 package scanner;
 
-public class Token {
-	private final int line;
-	private final int charnum;
+public abstract class Token {
+	protected final int line;
+	protected final int charnum;
 
-	public Token(int line, int character) {
-		this.line = line;
-		charnum = character;
+	@Override
+	public abstract String toString();
+
+	protected Token(int curline, int curcharacter) {
+		line = curline;
+		charnum = curcharacter;
 	}
 
-	public Token() {
+	protected Token() {
 		line = -1;
 		charnum = -1;
 	}
 
-	public Location getTokenLoc() {
+	public final Location getTokenLoc() {
 		return new Location(line, charnum);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-		Token other = (Token) obj;
-		return line == other.line && charnum == other.charnum;
-	}
-
-	@Override
-	public String toString() {
-		return "Token{" +
-					   "line=" + line +
-					   ", charnum=" + charnum +
-					   '}';
 	}
 
 	public record Location(int line, int character) {

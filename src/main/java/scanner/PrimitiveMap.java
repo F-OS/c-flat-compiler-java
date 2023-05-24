@@ -12,8 +12,7 @@ import java.util.Map;
 
 import static java.util.Map.entry;
 
-enum PrimitiveMap {
-	;
+class PrimitiveMap {
 	private static final Map<String, Class<?>> primitiveMap = Map.ofEntries(
 			entry("<<=", Primitive.LShiftAssign.class),
 			entry(">>=", Primitive.RShiftAssign.class),
@@ -64,7 +63,7 @@ enum PrimitiveMap {
 	);
 
 	static Map<String, Class<?>> get() {
-		return PrimitiveMap.primitiveMap;
+		return primitiveMap;
 	}
 
 }

@@ -19,17 +19,17 @@ package scanner;
 import scanner.token.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.Map.entry;
-
-public class Tokenizer {
+public final class Tokenizer {
 	private static final int INITIAL_TOK_LEN = 1024;
-	private static final Pattern IS_FLOATING = Pattern.compile("[0-9]+\\.[0-9]+");
-	private static final Pattern GET_INTEGER = Pattern.compile("\\b(0x[0-9a-fA-F]+|[0-9]+)\\b");
-	private static final Pattern GET_DECIMAL = Pattern.compile("\\b(0x[0-9a-fA-F]+|[0-9]+)\\.(0x[0-9a-fA-F]+|[0-9]+)\\b");
+	private static final Pattern IS_FLOATING = Pattern.compile("\\d+\\.\\d+");
+	private static final Pattern GET_INTEGER = Pattern.compile("\\b(0x[0-9a-fA-F]+|\\d+)\\b");
+	private static final Pattern GET_DECIMAL = Pattern.compile("\\b(0x[0-9a-fA-F]+|\\d+)\\.(0x[0-9a-fA-F]+|\\d+)\\b");
 
 	private final String str;
 	private final char[] strBytes;
@@ -42,23 +42,30 @@ public class Tokenizer {
 	private int character;
 
 
-	public Tokenizer(String str) {
-		this.str = str;
+	public Tokenizer(String strIn) {
+		str = strIn;
 		strLen = str.length();
 		strBytes = str.toCharArray();
 		primitiveMap = PrimitiveMap.get();
 		escapeSequences = Map.ofEntries(
-				entry("n", "\n"),
-				entry("r", "\r"),
-				entry("t", "\t"),
-				entry("b", "\b"),
-				entry("\\", "\\"),
-				entry("\"", "\"")
+				Map.entry("n", "\n"),
+				Map.entry("r", "\r"),
+				Map.entry("t", "\t"),
+				Map.entry("b", "\b"),
+				Map.entry("\\", "\\"),
+				Map.entry("\"", "\"")
 		);
+		strIdx = 0;
+		line = 0;
+		character = 0;
 	}
 
-	public ArrayList<Token> tokenize() {
-		ArrayList<Token> tokens = new ArrayList<>(Tokenizer.INITIAL_TOK_LEN);
+	public Tokenizer() throws InstantiationException {
+		throw new InstantiationException("No-arg constructors not supported by Tokenizer");
+	}
+
+	public List<Token> tokenize() {
+		List<Token> tokens = new ArrayList<>(INITIAL_TOK_LEN);
 		while (strIdx < strLen) {
 			skipWhitespace();
 			skipComments();
@@ -69,32 +76,34 @@ public class Tokenizer {
 	}
 
 	private Token getNextToken() {
+		Token result;
 		if (matchesPrimitive()) {
 			Map.Entry<String, Class<?>> newtok = getPrimitiveToken();
+			result = createTokenClassChecked(newtok.getValue());
 			charForward(newtok.getKey().length());
-			return createTokenClassChecked(newtok.getValue(), line, character);
 		} else if (isCharLiteral()) {
-			return new CharTok(line, character, parseCharacterLiteral());
+			result = new CharTok(line, character, parseCharacterLiteral());
 		} else if (isIdentifier()) {
-			return new Ident(line, character, parseIdent());
+			result = new Ident(line, character, parseIdent());
 		} else if (isDigit()) {
 			if (isFloating()) {
-				return new NumbTok(line, character, parseDouble());
+				result = new NumbTok(line, character, parseDouble());
+			} else {
+				result = new NumbTok(line, character, parseInteger());
 			}
-			return new NumbTok(line, character, parseInteger());
 		} else if (isString()) {
-			return new StringTok(line, character, parseString());
+			result = new StringTok(line, character, parseString());
 		} else {
-			Unimplemented unimplemented = new Unimplemented(line, character, strBytes[strIdx]);
+			result = new Unimplemented(line, character, strBytes[strIdx]);
 			charForward(1);
-			return unimplemented;
 		}
+		return result;
 	}
 
-	private Token createTokenClassChecked(Class<?> value, int line, int character) {
+	private Token createTokenClassChecked(Class<?> value) {
 		if (Token.class.isAssignableFrom(value)) {
 			Class<Token> klass = (Class<Token>) value;
-			return createTokenClass(klass, line, character);
+			return createTokenClass(klass);
 		} else {
 			throw new AssertionError("Non-primitive tokens should never be included in token mappings.");
 		}
@@ -110,18 +119,16 @@ public class Tokenizer {
 	}
 
 	private Map.Entry<String, Class<?>> getPrimitiveToken() {
-		Map.Entry<String, Class<?>> longest = entry("", Object.class);
+		Map.Entry<String, Class<?>> longest = Map.entry("", Object.class);
 		for (Map.Entry<String, Class<?>> item : primitiveMap.entrySet()) {
-			if (str.startsWith(item.getKey(), strIdx)) {
-				if (item.getKey().length() > longest.getKey().length()) {
-					longest = item;
-				}
+			if (str.startsWith(item.getKey(), strIdx) && item.getKey().length() > longest.getKey().length()) {
+				longest = item;
 			}
 		}
 		return longest;
 	}
 
-	private <T extends Token> T createTokenClass(Class<Token> tokenClass, int line, int character) {
+	private <T extends Token> T createTokenClass(Class<Token> tokenClass) {
 		try {
 			return (T) tokenClass.getDeclaredConstructor(int.class, int.class).newInstance(line, character);
 		} catch (Exception e) {
@@ -173,7 +180,7 @@ public class Tokenizer {
 	}
 
 	private double parseDouble() {
-		Matcher match = Tokenizer.GET_DECIMAL.matcher(str.substring(strIdx));
+		Matcher match = GET_DECIMAL.matcher(str.substring(strIdx));
 		if (match.find()) {
 			charForward(match.group(0).length());
 			return Double.parseDouble(match.group(0));
@@ -225,19 +232,15 @@ public class Tokenizer {
 		if (strBytes[strIdx] == '\\') {
 			charForward(1);
 			String key = String.valueOf(strBytes[strIdx]);
-			if (escapeSequences.containsKey(key)) {
-				charLit = escapeSequences.get(key).charAt(0);
-			} else {
-				charLit = key.charAt(0);
-			}
+			charLit = escapeSequences.getOrDefault(key, key).charAt(0);
 		} else {
 			charLit = strBytes[strIdx];
 		}
 		charForward(1);
-		if (strBytes[strIdx] != '\'') {
-			error("Unterminated string literal.");
-		} else {
+		if (strBytes[strIdx] == '\'') {
 			charForward(1);
+		} else {
+			error("Unterminated string literal.");
 		}
 		return charLit;
 	}
@@ -271,4 +274,16 @@ public class Tokenizer {
 		System.out.println("ERROR - Tokenizer: At line:" + line + ", character: " + character + ", " + s);
 	}
 
+	@Override
+	public String toString() {
+		return "Tokenizer{" + "str='" + str + '\'' +
+					   ", strBytes=" + Arrays.toString(strBytes) +
+					   ", strLen=" + strLen +
+					   ", primitiveMap=" + primitiveMap +
+					   ", escapeSequences=" + escapeSequences +
+					   ", strIdx=" + strIdx +
+					   ", line=" + line +
+					   ", character=" + character +
+					   '}';
+	}
 }

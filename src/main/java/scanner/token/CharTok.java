@@ -10,44 +10,83 @@ package scanner.token;
 
 import scanner.Token;
 
+/**
+ * Class for storing tokens containing a single character.
+ */
 public final class CharTok extends Token {
-	private final char characterlit;
+	private final char characterLit;
 
-	public CharTok(int line, int character, char characterlit) {
-		super(line, character);
-		this.characterlit = characterlit;
+	/**
+	 * Creates a new character token at the specified line and character, with the specified value.
+	 *
+	 * @param curline      the line in the source code.
+	 * @param curcharacter the character in the source code.
+	 * @param chr          the value.
+	 */
+	public CharTok(int curline, int curcharacter, char chr) {
+		super(curline, curcharacter);
+		characterLit = chr;
 	}
 
-	public CharTok(int line, int character) {
-		super(line, character);
-		characterlit = '\0';
-	}
-
-	public CharTok() {
+	/**
+	 * @throws InstantiationException if used. CharTok should not be used without a value, use instanceof instead.
+	 */
+	public CharTok() throws InstantiationException {
 		super(-1, -1);
-		characterlit = '\0';
+		throw new InstantiationException("No-arg constructors not supported by CharTok");
 	}
 
-	public char getChar() {
-		return characterlit;
+	/**
+	 * @return CharTok's stored value.
+	 */
+	public char getCharacterLit() {
+		return characterLit;
 	}
 
+	/**
+	 * Override for checking if two CharToks are equal. Returns true if and only if their line numbers, character numbers,
+	 * and literals are equal.
+	 *
+	 * @param obj instance of CharTok
+	 * @return true if they're equal, false if not.
+	 */
 	@Override
-	public boolean equals(Object o) {
-		if (o instanceof CharTok other) {
-			return characterlit == other.characterlit && getTokenLoc().equals(other.getTokenLoc());
+	public boolean equals(Object obj) {
+		if (obj instanceof CharTok other) {
+			return characterLit == other.characterLit && getTokenLoc().equals(other.getTokenLoc());
 		}
 		return false;
 	}
 
+	/**
+	 * Overload for checking if a CharTok instance matches a character.
+	 *
+	 * @param othercharacterlit a character
+	 * @return true if the fields are equal, false if not.
+	 */
 	public boolean equals(char othercharacterlit) {
-		return characterlit == othercharacterlit;
+		return characterLit == othercharacterlit;
 	}
 
+	/**
+	 * @return A (hopefully) unique hash code for the character.
+	 */
+	@Override
+	public int hashCode() {
+		int result = line;
+		result = 31 * result + charnum;
+		result = 337 * result + characterLit;
+		return result;
+	}
+
+	/**
+	 * Returns a text representation of the token.
+	 *
+	 * @return "Token{type=Char, char='[value]', line=[line], character=[charnum]}
+	 */
 	@Override
 	public String toString() {
-		return "Token{type=Char, " +
-					   "char=\'" + characterlit + '\'' +
-					   '}';
+		return "Token{type=Char, " + "char='" + characterLit + '\'' + ", line=" + line + ", character=" + charnum + '}';
 	}
+
 }
