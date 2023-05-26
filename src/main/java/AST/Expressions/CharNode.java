@@ -7,13 +7,14 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class CharNode extends Expression {
 	public final char char_;
 
-	public CharNode(char char_, int line, int character) {
-		super(line, character);
+	public CharNode(char char_, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.char_ = char_;
 	}
 

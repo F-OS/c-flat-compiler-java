@@ -8,14 +8,15 @@ package AST.Expressions;
 
 import AST.Expression;
 import AST.Expressions.OpEnums.UnaryOps;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class UnaryOp extends Op {
 	public final UnaryOps op;
 	public final Expression inner;
 
-	public UnaryOp(UnaryOps op, Expression inner, int line, int character) {
-		super(line, character);
+	public UnaryOp(UnaryOps op, Expression inner, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.op = op;
 		this.inner = inner;
 	}

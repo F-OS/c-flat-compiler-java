@@ -1,8 +1,6 @@
-import AST.ASTRoot;
-import AST.Declaration;
-import parser.Parser;
-import scanner.Token;
-import scanner.Tokenizer;
+import AST.Expression;
+import parser.ExpressionParser;
+import scanner.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -49,9 +47,8 @@ public class Main {
 	}
 
 	private static void runcode(String line) {
-		Tokenizer tokenizer = new Tokenizer(line);
-		List<Token> tokens = tokenizer.tokenize();
-		Parser parserObj = new Parser((ArrayList<Token>) tokens);
-		List<Declaration> tree = parserObj.parseProgram();
+		List<Token> tokens = Tokenizer.tokenize(line);
+		Expression exprTree = ExpressionParser.parseExpression(tokens);
+		System.out.println(exprTree);
 	}
 }

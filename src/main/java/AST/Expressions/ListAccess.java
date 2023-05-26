@@ -7,14 +7,15 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class ListAccess extends Expression {
 	public final String ident;
 	public final Expression index;
 
-	public ListAccess(String ident, Expression index, int line, int character) {
-		super(line, character);
+	public ListAccess(String ident, Expression index, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.ident = ident;
 		this.index = index;
 	}

@@ -7,6 +7,7 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Modify extends Expression {
@@ -14,8 +15,8 @@ public final class Modify extends Expression {
 	public final boolean returnPrevious;
 	public final Expression modifyBy;
 
-	public Modify(Expression ident, boolean returnPrevious, Expression modifyBy, int line, int character) {
-		super(line, character);
+	public Modify(Expression ident, boolean returnPrevious, Expression modifyBy, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.ident = ident;
 		this.returnPrevious = returnPrevious;
 		this.modifyBy = modifyBy;

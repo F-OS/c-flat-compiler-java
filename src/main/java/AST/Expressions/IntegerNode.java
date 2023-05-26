@@ -7,13 +7,14 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class IntegerNode extends Expression {
 	public final long num;
 
-	public IntegerNode(long num, int line, int character) {
-		super(line, character);
+	public IntegerNode(long num, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.num = num;
 	}
 

@@ -8,14 +8,15 @@ package AST.Statements;
 
 import AST.Expression;
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Assignment extends Statement {
 	public final Expression ident;
 	public final Expression expr;
 
-	public Assignment(Expression ident, Expression expr, int line, int character) {
-		super(line, character);
+	public Assignment(Expression ident, Expression expr, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.ident = ident;
 		this.expr = expr;
 	}

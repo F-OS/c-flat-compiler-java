@@ -8,6 +8,7 @@ package AST.Expressions;
 
 import AST.Expression;
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public final class Lambda extends Expression {
 	public final Statement block;
 	public final String returnType;
 
-	public Lambda(List<TypedVar> params, Statement block, String returnType, int line, int character) {
-		super(line, character);
+	public Lambda(List<TypedVar> params, Statement block, String returnType, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.params = params;
 		this.block = block;
 		this.returnType = returnType;

@@ -8,14 +8,15 @@ package AST.Expressions;
 
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 
 public final class VariableAccess extends Expression {
 	public final String ident;
 
-	public VariableAccess(String ident, int line, int character) {
-		super(line, character);
+	public VariableAccess(String ident, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.ident = ident;
 	}
 

@@ -7,13 +7,14 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Floating extends Expression {
 	public final double num;
 
-	public Floating(double num, int line, int character) {
-		super(line, character);
+	public Floating(double num, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.num = num;
 	}
 

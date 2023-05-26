@@ -6,25 +6,100 @@
 
 package scanner;
 
-import scanner.token.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static scanner.Token.TokenType.*;
+
+/*
+ * This refactored tokenizer is an adaptation of:
+ *  [https://github.com/mpartel/minicompiler/blob/master/src/main/java/minicompiler/Tokenizer.java]
+ * I owe a big debt to Martin Pärtel for his tokenizer class.
+ */
 public final class Tokenizer {
-	private static final int INITIAL_TOK_LEN = 1024;
 	private static final Pattern IS_FLOATING = Pattern.compile("^\\d+\\.\\d+");
 	private static final Pattern GET_INTEGER = Pattern.compile("^\\b(0x[0-9a-fA-F]+|\\d+)\\b");
 	private static final Pattern GET_DECIMAL = Pattern.compile("^\\b(0x[0-9a-fA-F]+|\\d+)\\.(0x[0-9a-fA-F]+|\\d+)\\b");
+	private static final Pattern GET_IDENTIFIER = Pattern.compile("[a-zA-Z_]\\w*");
+	private static final LinkedHashMap<String, Token.TokenType> keywords = new LinkedHashMap<>();
 
-	private final String inputString;
-	private final char[] inputStringChars;
-	private final int inputStringLength;
-	private final Map<String, Class<?>> primitiveMap;
+	private static final LinkedHashMap<String, Token.TokenType> primitives = new LinkedHashMap<>();
 
-	private final Set<String> mapKeys;
+	static {
+		keywords.put("if", IF);
+		keywords.put("else", ELSE);
+		keywords.put("for", FOR);
+		keywords.put("foreach", FOREACH);
+		keywords.put("while", WHILE);
+		keywords.put("do", DO);
+		keywords.put("switch", SWITCH);
+		keywords.put("try", TRY);
+		keywords.put("continue", CONTINUE);
+		keywords.put("break", BREAK);
+		keywords.put("return", RETURN);
+		keywords.put("goto", GOTO);
+		keywords.put("throw", THROW);
+		keywords.put("fun", FUN);
+		keywords.put("var", VAR);
+		keywords.put("array", ARRAY);
+		keywords.put("enum", ENUM);
+		keywords.put("class", CLASS);
+		keywords.put("struct", STRUCT);
+		keywords.put("true", TRUE);
+		keywords.put("false", FALSE);
+		primitives.put("<<=", LSHIFTASSIGN);
+		primitives.put(">>=", RSHIFTASSIGN);
+		primitives.put("**=", POWASSIGN);
+		primitives.put("**", POW);
+		primitives.put("+=", ADDASSIGN);
+		primitives.put("-=", SUBASSIGN);
+		primitives.put("*=", MULASSIGN);
+		primitives.put("/=", DIVASSIGN);
+		primitives.put("%=", MODASSIGN);
+		primitives.put("&=", ANDASSIGN);
+		primitives.put("|=", ORASSIGN);
+		primitives.put("^=", XORASSIGN);
+		primitives.put("++", INC);
+		primitives.put("--", DEC);
+		primitives.put(">>", BITWISE_LSHIFT);
+		primitives.put("<<", BITWISE_RSHIFT);
+		primitives.put("||", OR);
+		primitives.put("&&", AND);
+		primitives.put("<=", GREATEREQUAL);
+		primitives.put(">=", LESSEQUAL);
+		primitives.put("<", GREATERTHAN);
+		primitives.put(">", LESSTHAN);
+		primitives.put("==", EQUALTO);
+		primitives.put("!=", NOTEQUALTO);
+		primitives.put("^", BITWISE_XOR);
+		primitives.put("~", BITWISE_NOT);
+		primitives.put("|", BITWISE_OR);
+		primitives.put("&", BITWISE_AND);
+		primitives.put("!", NOT);
+		primitives.put("+", ADD);
+		primitives.put("-", SUB);
+		primitives.put("*", MUL);
+		primitives.put("?", QMARK);
+		primitives.put(":", COLON);
+		primitives.put("/", DIV);
+		primitives.put("%", MOD);
+		primitives.put(".", DOT);
+		primitives.put("=", EQUATE);
+		primitives.put(",", COMMA);
+		primitives.put(";", SEMICOLON);
+		primitives.put("{", LBRACE);
+		primitives.put("}", RBRACE);
+		primitives.put("[", LBRACKET);
+		primitives.put("]", RBRACKET);
+		primitives.put("(", LPAREN);
+		primitives.put(")", RPAREN);
+	}
 
+	private final ArrayList<Token> result;
 	private final Map<String, String> escapeSequences = Map.ofEntries(
 			Map.entry("n", "\n"),
 			Map.entry("r", "\r"),
@@ -33,125 +108,183 @@ public final class Tokenizer {
 			Map.entry("\\", "\\"),
 			Map.entry("\"", "\"")
 	);
-
-	private int strIndex;
+	private String input;
 	private int line;
-	private int currentCharacter;
+	private int col;
 
-	public Tokenizer(String inputString) {
-		this.inputString = inputString;
-		this.inputStringLength = inputString.length();
-		this.inputStringChars = inputString.toCharArray();
-		this.primitiveMap = PrimitiveMap.get();
-		this.mapKeys = primitiveMap.keySet();
-		this.strIndex = 0;
-		this.line = 0;
-		this.currentCharacter = 0;
+	private Tokenizer(String in) {
+		this.result = new ArrayList<>();
+		this.input = in;
+		this.line = 1;
+		this.col = 1;
 	}
 
-	public Tokenizer() throws InstantiationException {
-		throw new InstantiationException("No-arg constructors not supported by Tokenizer");
+	public static ArrayList<Token> tokenize(String input) {
+		Tokenizer tokenizer = new Tokenizer(input);
+		tokenizer.tokenize();
+		return tokenizer.result;
 	}
 
-	public List<Token> tokenize() {
-		List<Token> tokens = new ArrayList<>(INITIAL_TOK_LEN);
-		while (strIndex < inputStringLength) {
-			skipComments();
-			skipWhitespace();
-			tokens.add(getNextToken());
-			skipComments();
-			skipWhitespace();
-		}
-		tokens.add(new EndOfFile(line, currentCharacter));
-		return tokens;
-	}
-
-	private Token getNextToken() {
-		Token result;
-		if (matchesPrimitive()) {
-			Map.Entry<String, Class<?>> newtok = getPrimitiveToken();
-			result = createTokenClassChecked(newtok.getValue());
-			charForward(newtok.getKey().length());
-		} else if (isCharLiteral()) {
-			result = new CharTok(line, currentCharacter, parseCharacterLiteral());
-		} else if (isIdentifier()) {
-			result = new Ident(line, currentCharacter, parseIdent());
-		} else if (isDigit()) {
-			if (isFloating()) {
-				result = new NumbTok(line, currentCharacter, parseDouble());
-			} else {
-				result = new NumbTok(line, currentCharacter, parseInteger());
-			}
-		} else if (isString()) {
-			result = new StringTok(line, currentCharacter, parseString());
-		} else {
-			result = new Unimplemented(line, currentCharacter, inputStringChars[strIndex]);
-			charForward(1);
-		}
-		return result;
-	}
-
-	private Token createTokenClassChecked(Class<?> value) {
-		if (Token.class.isAssignableFrom(value)) {
-			Class<? extends Token> klass = value.asSubclass(Token.class);
-			return createTokenClass(klass);
-		} else {
-			throw new AssertionError("Non-primitive tokens should never be included in token mappings.");
-		}
-	}
-
-	private boolean matchesPrimitive() {
-		for (String key : mapKeys) {
-			if (inputString.startsWith(key, strIndex)) {
+	private boolean isPrimitive() {
+		for (String token : primitives.keySet()) {
+			if (tryToken(token, primitives.get(token))) {
 				return true;
 			}
+		}
+
+		return false;
+	}
+
+	private void tokenize() {
+		skipWhitespace();
+		skipComments();
+		while (!input.isEmpty()) {
+			if (!isPrimitive()) {
+				if (isDigit()) {
+					if (isFloating()) {
+						tryRegex(GET_DECIMAL, FLOATCONST);
+					} else {
+						tryRegex(GET_INTEGER, INTCONST);
+					}
+				} else if (isIdent()) {
+					Matcher idt = GET_IDENTIFIER.matcher(input);
+					idt.find();
+					String out = idt.group(0);
+					Token.TokenType type = keywords.getOrDefault(out, IDENTIFIER);
+					consumeInput(out.length());
+					result.add(new Token(type, out, line, col));
+				} else if (isCharLiteral()) {
+					result.add(new Token(CHARLIT, parseCharacterLiteral(), line, col));
+				} else if (isString()) {
+					int strbegin = line;
+					int strbeginc = col;
+					String newstr = parseString();
+					result.add(new Token(STRINGLIT, newstr, strbegin, strbeginc));
+				} else {
+					error("Unable to recognize " + input.charAt(0));
+					result.add(new Token(UNIMPLEMENTED, input.substring(0, 1), line, col));
+					consumeInput(1);
+				}
+			}
+			skipWhitespace();
+			skipComments();
+		}
+		result.add(new Token(EOF, "EOF", line, col));
+	}
+
+	private void skipWhitespace() {
+		int i = 0;
+		while (i < input.length() && Character.isWhitespace(input.charAt(i))) {
+			i++;
+		}
+		consumeInput(i);
+	}
+
+	private void skipComments() {
+		if (input.startsWith("//")) {
+			consumeInput(2);
+			while ((input.charAt(0) != '\n') && (input.charAt(0) != '\r')) {
+				consumeInput(1);
+			}
+			consumeInput(1);
+		}
+		skipWhitespace();
+	}
+
+	private boolean tryToken(String expected, Token.TokenType tokenType) {
+		if (input.startsWith(expected)) {
+			result.add(new Token(tokenType, expected, line, col));
+			consumeInput(expected.length());
+			return true;
 		}
 		return false;
 	}
 
-	private Map.Entry<String, Class<?>> getPrimitiveToken() {
-		Map.Entry<String, Class<?>> longest = Map.entry("", Object.class);
-		for (Map.Entry<String, Class<?>> entry : primitiveMap.entrySet()) {
-			String key = entry.getKey();
-			if (inputString.startsWith(key, strIndex) && key.length() > longest.getKey().length()) {
-				longest = entry;
-			}
-		}
-		return longest;
+	private boolean isDigit() {
+		return Character.isDigit(input.charAt(0));
 	}
 
-	private <T extends Token> T createTokenClass(Class<T> tokenClass) {
-		try {
-			return tokenClass.getDeclaredConstructor(int.class, int.class).newInstance(line, currentCharacter);
-		} catch (Exception e) {
-			// Handle any exceptions that may occur during instantiation
-			e.printStackTrace();
+	private boolean isFloating() {
+		return IS_FLOATING.matcher(input).find();
+	}
 
-			return (T) new Unimplemented(line, currentCharacter, '\0');
+	private boolean tryRegex(Pattern p, Token.TokenType ty) {
+		Matcher m = p.matcher(input);
+		if (m.lookingAt()) {
+			result.add(new Token(ty, m.group(), line, col));
+			consumeInput(m.end());
+			return true;
+		} else {
+			return false;
 		}
+	}
+
+	private boolean isIdent() {
+		return Character.isAlphabetic(input.charAt(0)) || input.charAt(0) == '_';
+	}
+
+	private void consumeInput(int amount) {
+		for (int i = 0; i < amount; ++i) {
+			char c = input.charAt(i);
+			if (c == '\n' || c == '\r') {
+				line++;
+				col = 1;
+			} else {
+				col++;
+			}
+		}
+		input = input.substring(amount);
+	}
+
+	private boolean isCharLiteral() {
+		return input.charAt(0) == '\'';
+	}
+
+	private String parseCharacterLiteral() {
+		consumeInput(1);
+		String charLit;
+		if (input.charAt(0) == '\\') {
+			consumeInput(1);
+			String key = input.substring(0, 1);
+			charLit = escapeSequences.getOrDefault(key, key);
+		} else {
+			charLit = input.substring(0, 1);
+		}
+		consumeInput(1);
+		if (input.charAt(0) == '\'') {
+			consumeInput(1);
+		} else {
+			error("Unterminated string literal.");
+		}
+		return charLit;
+	}
+
+	private boolean isString() {
+		return input.charAt(0) == '"';
 	}
 
 	private String parseString() {
 		StringBuilder stringLiteral = new StringBuilder(64);
-		charForward(1);
+		consumeInput(1);
 		while (true) {
-			if (inputStringChars[strIndex] == '\\') {
-				charForward(1);
-				String key = String.valueOf(inputStringChars[strIndex]);
+			char c = input.charAt(0);
+			if (c == '\\') {
+				consumeInput(1);
+				String key = input.substring(0, 1);
 				stringLiteral.append(escapeSequences.getOrDefault(key, key).charAt(0));
-				charForward(1);
-			} else if (inputStringChars[strIndex] == '\n' || inputStringChars[strIndex] == '\r') {
+				consumeInput(1);
+			} else if (c == '\n' || c == '\r') {
 				error("Unterminated String Literal.");
 				break;
-			} else if (inputStringChars[strIndex] == '"') {
-				charForward(1);
+			} else if (c == '"') {
+				consumeInput(1);
 				break;
 			} else {
-				stringLiteral.append(inputStringChars[strIndex]);
-				charForward(1);
+				stringLiteral.append(c);
+				consumeInput(1);
 			}
 
-			if (strIndex > inputStringLength) {
+			if (input.isEmpty()) {
 				error("Unterminated String Literal.");
 				break;
 			}
@@ -159,124 +292,8 @@ public final class Tokenizer {
 		return stringLiteral.toString();
 	}
 
-
-	private long parseInteger() {
-		Matcher match = GET_INTEGER.matcher(inputString.substring(strIndex));
-		if (match.find()) {
-			charForward(match.group(0).length());
-			return Long.parseLong(match.group(0));
-		} else {
-			throw new AssertionError("Invalid integer even though isNumber provided assurance. This should never happen");
-		}
-	}
-
-	private double parseDouble() {
-		Matcher match = GET_DECIMAL.matcher(inputString.substring(strIndex));
-
-		if (match.find()) {
-			String groupret = match.group(0);
-			charForward(groupret.length());
-			return Double.parseDouble(groupret);
-		} else {
-			throw new AssertionError("Invalid decimal even though isFloating provided assurance. This should never happen");
-		}
-	}
-
-	private void skipWhitespace() {
-		while (strIndex < inputStringLength && isWhitespace(inputStringChars[strIndex])) {
-			if (inputStringChars[strIndex] == '\n' || inputStringChars[strIndex] == '\r') {
-				charForward(1);
-				currentCharacter = 0;
-				line++;
-			} else {
-				charForward(1);
-			}
-		}
-	}
-
-	private void skipComments() {
-		if (inputString.startsWith("//", strIndex)) {
-			charForward(2);
-			while (strIndex < inputStringLength && (inputStringChars[strIndex] != '\n' && inputStringChars[strIndex] != '\r')) {
-				charForward(1);
-			}
-			currentCharacter = 0;
-			line++;
-		}
-	}
-
-	private static boolean isWhitespace(char in) {
-		return in == '\n' || in == '\t' || in == ' ' || in == '\r' || Character.isWhitespace(in);
-	}
-
-	private void charForward(int count) {
-		currentCharacter += count;
-		strIndex += count;
-	}
-
-	private boolean isCharLiteral() {
-		return inputStringChars[strIndex] == '\'';
-	}
-
-	private char parseCharacterLiteral() {
-		charForward(1);
-		char charLit;
-		if (inputStringChars[strIndex] == '\\') {
-			charForward(1);
-			String key = String.valueOf(inputStringChars[strIndex]);
-			charLit = escapeSequences.getOrDefault(key, key).charAt(0);
-		} else {
-			charLit = inputStringChars[strIndex];
-		}
-		charForward(1);
-		if (inputStringChars[strIndex] == '\'') {
-			charForward(1);
-		} else {
-			error("Unterminated string literal.");
-		}
-		return charLit;
-	}
-
-	private boolean isIdentifier() {
-		return Character.isAlphabetic(inputStringChars[strIndex]) || inputStringChars[strIndex] == '_';
-	}
-
-	private String parseIdent() {
-		StringBuilder ident = new StringBuilder(64);
-		while (strIndex < inputStringLength && isIdentifier()) {
-			ident.append(inputStringChars[strIndex]);
-			charForward(1);
-		}
-		return ident.toString();
-	}
-
-	private boolean isDigit() {
-		return Character.isDigit(inputStringChars[strIndex]);
-	}
-
-	private boolean isFloating() {
-		return IS_FLOATING.matcher(inputString.substring(strIndex)).find();
-	}
-
-	private boolean isString() {
-		return inputStringChars[strIndex] == '"';
-	}
-
 	private void error(String message) {
-		System.out.println("ERROR - Tokenizer: At line: " + line + ", character: " + currentCharacter + ", " + message);
+		System.out.println("ERROR - Tokenizer: At line: " + line + ", character: " + col + ", " + message);
 	}
 
-	@Override
-	public String toString() {
-		return "Tokenizer{" +
-					   "inputString='" + inputString + '\'' +
-					   ", inputStringChars=" + Arrays.toString(inputStringChars) +
-					   ", inputStringLength=" + inputStringLength +
-					   ", primitiveMap=" + primitiveMap +
-					   ", escapeSequences=" + escapeSequences +
-					   ", strIndex=" + strIndex +
-					   ", line=" + line +
-					   ", currentCharacter=" + currentCharacter +
-					   '}';
-	}
 }

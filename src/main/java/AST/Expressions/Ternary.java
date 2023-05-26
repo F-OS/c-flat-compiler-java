@@ -7,6 +7,7 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Ternary extends Expression {
@@ -14,8 +15,8 @@ public final class Ternary extends Expression {
 	public final Expression consequent;
 	public final Expression alternate;
 
-	public Ternary(Expression condition, Expression consequent, Expression alternate, int line, int character) {
-		super(line, character);
+	public Ternary(Expression condition, Expression consequent, Expression alternate, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.condition = condition;
 		this.consequent = consequent;
 		this.alternate = alternate;

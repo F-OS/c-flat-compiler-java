@@ -8,6 +8,7 @@ package AST.Expressions;
 
 import AST.Expression;
 import AST.Expressions.OpEnums.BinaryOps;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class BinaryOp extends Op {
@@ -15,8 +16,8 @@ public final class BinaryOp extends Op {
 	public final BinaryOps op;
 	public final Expression right;
 
-	public BinaryOp(Expression left, BinaryOps op, Expression right, int line, int character) {
-		super(line, character);
+	public BinaryOp(Expression left, BinaryOps op, Expression right, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.left = left;
 		this.op = op;
 		this.right = right;

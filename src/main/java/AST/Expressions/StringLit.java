@@ -7,13 +7,14 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class StringLit extends Expression {
 	public final String str;
 
-	public StringLit(String str, int line, int character) {
-		super(line, character);
+	public StringLit(String str, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.str = str;
 	}
 

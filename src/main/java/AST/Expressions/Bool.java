@@ -7,13 +7,14 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Bool extends Expression {
 	public final boolean bool;
 
-	public Bool(boolean bool, int line, int character) {
-		super(line, character);
+	public Bool(boolean bool, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.bool = bool;
 	}
 

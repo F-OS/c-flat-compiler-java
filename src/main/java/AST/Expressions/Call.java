@@ -7,6 +7,7 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 import java.util.List;
@@ -15,8 +16,8 @@ public final class Call extends Expression {
 	public final String func;
 	public final List<Expression> params;
 
-	public Call(String func, List<Expression> params, int line, int character) {
-		super(line, character);
+	public Call(String func, List<Expression> params, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.func = func;
 		this.params = params;
 	}

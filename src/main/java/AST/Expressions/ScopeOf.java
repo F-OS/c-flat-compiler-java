@@ -7,14 +7,15 @@
 package AST.Expressions;
 
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class ScopeOf extends Expression {
 	public final String inScope;
 	public final Expression perform;
 
-	public ScopeOf(String inScope, Expression perform, int line, int character) {
-		super(line, character);
+	public ScopeOf(String inScope, Expression perform, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.inScope = inScope;
 		this.perform = perform;
 	}

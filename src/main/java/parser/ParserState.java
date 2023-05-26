@@ -6,80 +6,98 @@
 
 package parser;
 
-import AST.Declaration;
 import scanner.Token;
-import scanner.token.EndOfFile;
-import scanner.token.Primitive;
-import scanner.token.Primitive.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public final class ParserState {
-	private final List<Token> tokenList;
+import utils.Entry;
 
-	private List<Declaration> partialDeclarations;
-	private boolean semicolonExempt = false;
+public class ParserState {
+	private final List<Token> tokenStream;
+	private int currentPosition;
 
-	ParserState(List<Token> tokens) {
-		tokenList = tokens;
-		partialDeclarations = new ArrayList<>();
+	public ParserState(List<Token> tokenStream) {
+		this.tokenStream = tokenStream;
+		this.currentPosition = 0;
 	}
 
-	Token getTokenAt(int index) {
-		if (index < tokenList.size()) {
-			return tokenList.get(index);
+	public Token getCurrentToken() {
+		if (currentPosition < tokenStream.size()) {
+			return tokenStream.get(currentPosition);
 		}
-		return new EndOfFile(0, 0);
+		// Return a special "end of input" token
+		return new Token(Token.TokenType.EOF, "", -1, -1);
 	}
 
-	public void removeTokenAt(int index) {
-		if (!tokenList.isEmpty() && !(tokenList.get(0) instanceof EndOfFile)) {
-			tokenList.remove(index);
+	public Token consumeToken() {
+		Token tok = getCurrentToken();
+		currentPosition++;
+		return tok;
+	}
+
+	public boolean curTokenIsType(Token.TokenType tokType) {
+		Token tok = getCurrentToken();
+		return tok.type == tokType;
+	}
+
+	public boolean isAnyOfType(List<Token.TokenType> tokType) {
+		Token tok = getCurrentToken();
+		return tokType.contains(tok.type);
+	}
+
+	public boolean isIdentifier() {
+		Token tok = getCurrentToken();
+		return tok.type == Token.TokenType.IDENTIFIER;
+	}
+
+	public String getTokenText() {
+		Token tok = getCurrentToken();
+		return tok.text;
+	}
+
+	public Token match(Token.TokenType expectedTokenType, String error) {
+		Token currentToken = getCurrentToken();
+		if (currentToken.type == expectedTokenType) {
+			consumeToken();
+			return currentToken;
+		} else {
+			throw new RuntimeException("Syntax error: " + error + " Expected " + expectedTokenType +
+									   " but found " + currentToken.type + " at line " + currentToken.line +
+									   ", char " + currentToken.charNum);
 		}
 	}
 
-	public boolean isEmpty() {
-		return tokenList.isEmpty();
+	public String matchIdent(String error) {
+		Token idt = match(Token.TokenType.IDENTIFIER, error);
+		return idt.text;
 	}
 
-	public List<Declaration> getDeclarationList() {
-		return partialDeclarations;
+	Entry<Integer, Integer> getCurrentLocation() {
+		return new Entry<>(getCurrentToken().line, getCurrentToken().charNum);
 	}
 
-	public void clearDeclarationList() {
-		partialDeclarations = new ArrayList<>();
+	List<Token> getTokenStream() {
+		return tokenStream;
 	}
 
-	public void appendDeclaration(Declaration declaration) {
-		partialDeclarations.add(declaration);
+	public int getCurrentPosition() {
+		return currentPosition;
 	}
 
-	public boolean isSemicolonExempt() {
-		if (semicolonExempt) {
-			semicolonExempt = false;
-			return true;
+	public void advanceLocation(int loc) {
+		currentPosition = loc;
+	}
+
+	public Token matchList(List<Token.TokenType> expectedTokenType, String error) {
+		Token currentToken = getCurrentToken();
+		if (expectedTokenType.contains(currentToken.type)) {
+			consumeToken();
+			return currentToken;
+		} else {
+			throw new RuntimeException("Syntax error: " + error + " Expected " + String.join(", or ",
+					expectedTokenType.stream().map(Enum::toString).toList()) +
+									   " but found " + currentToken.type + " at line " + currentToken.line +
+									   ", char " + currentToken.charNum);
 		}
-		return false;
-	}
-
-	public void setSemicolonExempt() {
-		semicolonExempt = true;
-	}
-
-	boolean isAssignment(Token token) {
-		return token instanceof Assign
-					   || token instanceof AddAssign
-					   || token instanceof SubAssign
-					   || token instanceof MulAssign
-					   || token instanceof DivAssign
-					   || token instanceof ModAssign
-					   || token instanceof PowAssign
-					   || token instanceof AndAssign
-					   || token instanceof OrAssign
-					   || token instanceof LShiftAssign
-					   || token instanceof RShiftAssign
-					   || token instanceof XorAssign;
 	}
 }
