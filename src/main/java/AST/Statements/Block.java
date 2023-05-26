@@ -6,12 +6,12 @@
 
 package AST.Statements;
 
+import java.util.List;
+
 import AST.Declaration;
 import AST.Statement;
 import utils.Entry;
 import visitor.Visitor;
-
-import java.util.List;
 
 public final class Block extends Statement {
 	public final List<Declaration> statements;

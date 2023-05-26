@@ -6,8 +6,8 @@
 
 package TypeAndSymbolAnnotator.Types;
 
-import TypeAndSymbolAnnotator.Symbols.FunctionSymbol;
 import TypeAndSymbolAnnotator.Type;
+import TypeAndSymbolAnnotator.Symbols.FunctionSymbol;
 
 public final class LambdaType extends Type {
 	final FunctionSymbol func;
@@ -16,6 +16,7 @@ public final class LambdaType extends Type {
 		this.func = func;
 	}
 
+	@Override
 	public String toString() {
 		return "Anonymous Function" + (func != null ? " with signature " + func : "");
 	}

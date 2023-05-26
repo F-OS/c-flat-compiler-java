@@ -6,18 +6,18 @@
 
 package AST.Declarations;
 
-import AST.ASTRoot;
-import AST.Declaration;
-import visitor.Visitor;
-
 import java.util.List;
+
+import AST.Declaration;
+import utils.Entry;
+import visitor.Visitor;
 
 public final class StructDeclaration extends Declaration {
 	public final String name;
 	public final List<Declaration> members;
 
-	public StructDeclaration(String name, List<Declaration> members, int line, int character) {
-		super(line, character);
+	public StructDeclaration(String name, List<Declaration> members, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.name = name;
 		this.members = members;
 	}

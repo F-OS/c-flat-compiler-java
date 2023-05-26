@@ -13,6 +13,7 @@ public final class BoolType extends Type {
 		promotionlist.add(IntegerType.getInstance());
 	}
 
+	@Override
 	public String toString() {
 		return "Boolean";
 	}

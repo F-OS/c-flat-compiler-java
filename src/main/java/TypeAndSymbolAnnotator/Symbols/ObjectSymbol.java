@@ -6,8 +6,8 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
+import TypeAndSymbolAnnotator.Scope;
 import TypeAndSymbolAnnotator.Symbol;
-import com.sun.source.tree.Scope;
 
 public final class ObjectSymbol extends Symbol {
 	public final Scope associatedScope;

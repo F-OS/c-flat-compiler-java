@@ -17,6 +17,8 @@ public interface Visitor {
 
 	Object visit(UnaryOp node);
 
+	Object visit(Ternary node);
+
 	Object visit(ListAccess node);
 
 	Object visit(VariableAccess node);
@@ -78,6 +80,4 @@ public interface Visitor {
 	Object visit(StructDeclaration node);
 
 	Object visit(FunctionDeclaration node);
-
-	Object visit(Ternary node);
 }

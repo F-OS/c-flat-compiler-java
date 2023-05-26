@@ -13,5 +13,6 @@ public abstract class Statement extends Declaration {
 		super(line, character);
 	}
 
+	@Override
 	public abstract Object accept(Visitor visitor);
 }

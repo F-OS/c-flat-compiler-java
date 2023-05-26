@@ -6,10 +6,9 @@
 
 package parser;
 
-import scanner.Token;
-
 import java.util.List;
 
+import scanner.Token;
 import utils.Entry;
 
 public class ParserState {
@@ -103,7 +102,7 @@ public class ParserState {
 	}
 
 	public void advanceLocation(int loc) {
-		currentPosition = loc;
+		currentPosition += loc;
 	}
 
 	public Token matchList(List<Token.TokenType> expectedTokenType, String error) {

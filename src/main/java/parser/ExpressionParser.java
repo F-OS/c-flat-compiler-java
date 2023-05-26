@@ -6,17 +6,17 @@
 
 package parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import AST.ASTRoot;
 import AST.Expression;
+import AST.Statement;
 import AST.Expressions.*;
 import AST.Expressions.OpEnums.BinaryOps;
 import AST.Expressions.OpEnums.UnaryOps;
-import AST.Statement;
 import scanner.Token;
 import utils.Entry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class ExpressionParser extends ParserState {
 
@@ -25,10 +25,9 @@ public final class ExpressionParser extends ParserState {
 	}
 
 	/**
-	 * The entry point of the recursive descent parser.
-	 * Starts parsing of the expression at the root level.
-	 * Initalizes the expression parser object as well.
-	 * Static because it's helpful for use in other parser types.
+	 * The entry point of the recursive descent parser. Starts parsing of the
+	 * expression at the root level. Initalizes the expression parser object as
+	 * well. Static because it's helpful for use in other parser types.
 	 *
 	 * @return An object of type [Expression] representing the parsed expression.
 	 * <p>
@@ -47,11 +46,11 @@ public final class ExpressionParser extends ParserState {
 	}
 
 	/**
-	 * Parses a [Lambda] expression.
-	 * Lambda expressions should start with the keyword "lambda".
-	 * If the first token is not "lambda", it continues parsing.
+	 * Parses a [Lambda] expression. Lambda expressions should start with the
+	 * keyword "lambda". If the first token is not "lambda", it continues parsing.
 	 *
-	 * @return An object of type [Expression] representing the parsed Lambda expression or a passthrough to Logical Or.
+	 * @return An object of type [Expression] representing the parsed Lambda
+	 * expression or a passthrough to Logical Or.
 	 * <p>
 	 * ***Grammar:***
 	 * * Lambda ->
@@ -71,18 +70,10 @@ public final class ExpressionParser extends ParserState {
 		return parseTernary();
 	}
 
-	private Statement parseStatement() {
-		Entry<Statement, Integer> block =
-				StatementParser.parseStatement(getTokenStream().subList(getCurrentPosition(),
-						getTokenStream().size()));
-		advanceLocation(block.value());
-		return block.key();
-	}
-
 	/**
-	 * Parses the parameters of a function.
-	 * A parameter definition must contain a left paren '(' followed by a list of parameters enclosed in parentheses.
-	 * Each parameter is a typed Identifier.
+	 * Parses the parameters of a function. A parameter definition must contain a
+	 * left paren '(' followed by a list of parameters enclosed in parentheses. Each
+	 * parameter is a typed Identifier.
 	 *
 	 * @return A list of strings representing the parsed parameters.
 	 * <p>
@@ -102,13 +93,14 @@ public final class ExpressionParser extends ParserState {
 				if (expectComma) {
 					curTok = getCurrentToken();
 					System.out.println("WARNING: Expected a comma at identifier " + curTok.text
-									   + " in parameter definition on line " + curTok.line +
-									   ", character" + curTok.charNum + " .");
+									   + " in parameter definition on line " + curTok.line + ", character" +
+									   curTok.charNum
+									   + " .");
 				}
 				expectComma = true;
 				String name = getTokenText();
-				match(Token.TokenType.COLON, "A parameter definition must contain an identifier followed by a " +
-											 "colon and then a typename.");
+				match(Token.TokenType.COLON, "A parameter definition must contain an identifier followed by a "
+											 + "colon and then a typename.");
 				String type = matchIdent("Expected a typename after lambda params.");
 				params.add(new ASTRoot.TypedVar(name, type));
 			} else if (curTokenIsType(Token.TokenType.RPAREN)) {
@@ -117,9 +109,8 @@ public final class ExpressionParser extends ParserState {
 			} else if (curTokenIsType(Token.TokenType.COMMA)) {
 				if (!expectComma) {
 					curTok = getCurrentToken();
-					System.out.println("WARNING: Unexpected comma " + curTok.text
-									   + " in parameter definition on line " + curTok.line +
-									   ", character" + curTok.charNum + " .");
+					System.out.println("WARNING: Unexpected comma " + curTok.text + " in parameter definition on line "
+									   + curTok.line + ", character" + curTok.charNum + " .");
 				}
 				expectComma = false;
 				consumeToken();
@@ -129,17 +120,16 @@ public final class ExpressionParser extends ParserState {
 			}
 		}
 		if (params.isEmpty()) {
-			System.out.println("WARNING: Empty parameter list " + curTok.text
-							   + " in parameter definition on line " + curTok.line +
-							   ", character" + curTok.charNum + " .");
+			System.out.println("WARNING: Empty parameter list " + curTok.text + " in parameter definition on line "
+							   + curTok.line + ", character" + curTok.charNum + " .");
 		}
 		return params;
 	}
 
 	/**
-	 * Parses a ternary.
-	 * A ternary expression consists of a predicate followed by a consequent and alternate.
-	 * An expression a ? b : c evaluates to b if the value of a is true, and otherwise to c.
+	 * Parses a ternary. A ternary expression consists of a predicate followed by a
+	 * consequent and alternate. An expression a ? b : c evaluates to b if the value
+	 * of a is true, and otherwise to c.
 	 *
 	 * @return An object of type Expression containing a ternary.
 	 * <p>
@@ -162,8 +152,8 @@ public final class ExpressionParser extends ParserState {
 	}
 
 	/**
-	 * Parses an expression of the form expr op expr.
-	 * Takes a precedence parameter to determine expression precedence.
+	 * Parses an expression of the form expr op expr. Takes a precedence parameter
+	 * to determine expression precedence.
 	 *
 	 * @param precedence The current precedence for the operator.
 	 * @return An object of type Expression containing a binary expression.
@@ -187,7 +177,8 @@ public final class ExpressionParser extends ParserState {
 	/**
 	 * Parses a unary expression.
 	 *
-	 * @return A [UnaryOp] expression representing the parsed unary expression or a passthrough to Logical Not.
+	 * @return A [UnaryOp] expression representing the parsed unary expression or a
+	 * passthrough to Logical Not.
 	 * <p>
 	 * ***Grammar:***
 	 * * Unary ->
@@ -198,25 +189,24 @@ public final class ExpressionParser extends ParserState {
 	private Expression parseUnary() {
 		Entry<Integer, Integer> loc = getCurrentLocation();
 		Token.TokenType tokenType = getCurrentToken().type;
-		switch (tokenType) {
+		return switch (tokenType) {
 			case BITWISE_NOT -> {
 				consumeToken();
-				return new UnaryOp(UnaryOps.BNot, parseUnary(), loc);
+				yield new UnaryOp(UnaryOps.BNot, parseUnary(), loc);
 			}
 			case SUB -> {
 				consumeToken();
-				return new UnaryOp(UnaryOps.Invert, parseUnary(), loc);
+				yield new UnaryOp(UnaryOps.Invert, parseUnary(), loc);
 			}
-			default -> {
-				return parseLogicalNotExpression();
-			}
-		}
+			default -> parseLogicalNotExpression();
+		};
 	}
 
 	/**
 	 * Parses a logical not expression.
 	 *
-	 * @return A [UnaryOp] expression representing the parsed logical not expression or a passthrough to Modify.
+	 * @return A [UnaryOp] expression representing the parsed logical not expression
+	 * or a passthrough to Modify.
 	 * <p>
 	 * ***Grammar:***
 	 * * LogicalNotExpression ->
@@ -235,7 +225,8 @@ public final class ExpressionParser extends ParserState {
 	/**
 	 * Parses an increment or decrement expression.
 	 *
-	 * @return A [Modify] expression representing the parsed increment or decrement expression or a passthrough to Call.
+	 * @return A [Modify] expression representing the parsed increment or decrement
+	 * expression or a passthrough to Call.
 	 * <p>
 	 * ***Grammar:***
 	 * * IncDec ->
@@ -262,24 +253,24 @@ public final class ExpressionParser extends ParserState {
 			if (curTokenIsType(Token.TokenType.INC)) {
 				consumeToken();
 				modifyby = 1;
-				returnPrevious = true;
 			} else if (curTokenIsType(Token.TokenType.DEC)) {
 				consumeToken();
 				modifyby = -1;
-				returnPrevious = true;
 			} else {
 				return result;
 			}
+			returnPrevious = true;
 		}
-		return new Modify(result, returnPrevious, new IntegerNode(modifyby, getCurrentLocation()), getCurrentLocation());
+		return new Modify(result, returnPrevious, new IntegerNode(modifyby, getCurrentLocation()),
+				getCurrentLocation());
 	}
 
-
 	/**
-	 * Parses a function call [Call], array access [ListAccess],
-	 * variable access [VariableAccess], or field access [ScopeOf].
+	 * Parses a function call [Call], array access [ListAccess], variable access
+	 * [VariableAccess], or field access [ScopeOf].
 	 *
-	 * @return An expression representing the parsed function call or a passthrough to Primary.
+	 * @return An expression representing the parsed function call or a passthrough
+	 * to Primary.
 	 * <p>
 	 * ***Grammar:***
 	 * * CallExpression ->
@@ -297,7 +288,8 @@ public final class ExpressionParser extends ParserState {
 				Expression idx = parseExpression();
 				match(Token.TokenType.RBRACKET, "Lists require a closing brace.");
 				return new ListAccess(identifier, idx, getCurrentLocation());
-			} else if (curTokenIsType(Token.TokenType.DOT)) {
+			}
+			if (curTokenIsType(Token.TokenType.DOT)) {
 				consumeToken();
 				Expression rhs = parseExpression();
 				return new ScopeOf(identifier, rhs, getCurrentLocation());
@@ -331,8 +323,9 @@ public final class ExpressionParser extends ParserState {
 				if (curTokenIsType(Token.TokenType.EOF) || curTokenIsType(Token.TokenType.SEMICOLON)) {
 					Token currentToken = getCurrentToken();
 					throw new RuntimeException(
-							"Syntax error: Invalid function call. Parameter list is not terminated. Expected an identifier, comma, or closing parenthesis, but found " +
-							currentToken.type + " at line " + currentToken.line + ", char " + currentToken.charNum);
+							"Syntax error: Invalid function call. Parameter list is not terminated. Expected an identifier, comma, or closing parenthesis, but found "
+							+ currentToken.type + " at line " + currentToken.line + ", char "
+							+ currentToken.charNum);
 				}
 				params.add(parseExpression());
 			}
@@ -382,10 +375,17 @@ public final class ExpressionParser extends ParserState {
 			default -> {
 				Token currentToken = getCurrentToken();
 				throw new RuntimeException(
-						"Syntax error: Unexpected Token. Expected one of integer, float, string literal, parenthetical expression, boolean, or ident but found " +
-						currentToken.type + " at line " + currentToken.line + ", char " + currentToken.charNum);
+						"Syntax error: Unexpected Token. Expected one of integer, float, string literal, parenthetical expression, boolean, or ident but found "
+						+ currentToken.type + " at line " + currentToken.line + ", char " + currentToken.charNum);
 			}
 		}
 		return primitive;
+	}
+
+	private Statement parseStatement() {
+		Entry<Statement, Integer> block = StatementParser
+												  .parseStatement(getTokenStream().subList(getCurrentPosition(), getTokenStream().size()));
+		advanceLocation(block.value());
+		return block.key();
 	}
 }

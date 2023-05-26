@@ -17,6 +17,7 @@ public final class EnumMemberType extends Type {
 		this.id = id;
 	}
 
+	@Override
 	public String toString() {
 		return "Enum member with name " + name + " and ID " + id;
 	}

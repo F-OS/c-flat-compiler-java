@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Type {
+	@Override
 	public String toString() {
 		return "!!BADTYPE!!";
 	}

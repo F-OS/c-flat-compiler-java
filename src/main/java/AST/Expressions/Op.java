@@ -7,7 +7,6 @@
 package AST.Expressions;
 
 import AST.Expression;
-import AST.Expressions.OpEnums.BinaryOps;
 import visitor.Visitor;
 
 public abstract class Op extends Expression {
@@ -15,6 +14,7 @@ public abstract class Op extends Expression {
 		super(line, character);
 	}
 
+	@Override
 	public abstract Object accept(Visitor visitor);
 
 	public abstract Object getOp();

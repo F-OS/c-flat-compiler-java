@@ -4,13 +4,7 @@
  * See LICENSE or go to https://www.gnu.org/licenses/gpl-3.0.en.html for full license details.
  */
 
-package TypeAndSymbolAnnotator.Types;
+package TypeAndSymbolAnnotator;
 
-import TypeAndSymbolAnnotator.Type;
-
-public final class StringType extends Type {
-	@Override
-	public String toString() {
-		return "String";
-	}
+public class Scope {
 }

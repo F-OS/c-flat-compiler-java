@@ -6,19 +6,19 @@
 
 package AST.Declarations;
 
-import AST.ASTRoot;
-import AST.Declaration;
-import visitor.Visitor;
-
 import java.util.List;
+
+import AST.Declaration;
+import utils.Entry;
+import visitor.Visitor;
 
 public final class ClassDeclaration extends Declaration {
 	public final String name;
 	public final List<Declaration> members;
 	public final List<String> inheritsFrom;
 
-	public ClassDeclaration(String name, List<Declaration> members, List<String> inheritsFrom, int line, int character) {
-		super(line, character);
+	public ClassDeclaration(String name, List<Declaration> members, List<String> inheritsFrom, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.name = name;
 		this.members = members;
 		this.inheritsFrom = inheritsFrom;

@@ -6,8 +6,8 @@
 
 package TypeAndSymbolAnnotator.Types;
 
+import TypeAndSymbolAnnotator.Scope;
 import TypeAndSymbolAnnotator.Type;
-import com.sun.source.tree.Scope;
 
 public final class ObjectType extends Type {
 	private final String name;
@@ -18,6 +18,7 @@ public final class ObjectType extends Type {
 		this.associatedScope = associatedScope;
 	}
 
+	@Override
 	public String toString() {
 		return "Object" + (name != null ? " with name " + name : "");
 	}

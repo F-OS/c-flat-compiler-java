@@ -6,12 +6,12 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import AST.ASTRoot;
 import AST.Declaration;
 import TypeAndSymbolAnnotator.Symbol;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public final class FunctionSymbol extends Symbol {
 	public final List<ASTRoot.TypedVar> params;

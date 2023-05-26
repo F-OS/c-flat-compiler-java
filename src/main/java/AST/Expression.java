@@ -13,6 +13,7 @@ public abstract class Expression extends Statement {
 		super(line, character);
 	}
 
+	@Override
 	public abstract Object accept(Visitor visitor);
 }
 

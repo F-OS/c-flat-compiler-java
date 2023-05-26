@@ -8,14 +8,15 @@ package AST.Declarations;
 
 import AST.Declaration;
 import AST.Expression;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class SimpleVarDeclaration extends Declaration {
 	public final TypedVar typedVar;
 	public final Expression definition;
 
-	public SimpleVarDeclaration(TypedVar variable, Expression definition, int line, int character) {
-		super(line, character);
+	public SimpleVarDeclaration(TypedVar variable, Expression definition, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		typedVar = variable;
 		this.definition = definition;
 	}

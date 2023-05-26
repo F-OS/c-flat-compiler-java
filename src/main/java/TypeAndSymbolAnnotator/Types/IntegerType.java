@@ -19,6 +19,7 @@ public final class IntegerType extends Type {
 		return instance;
 	}
 
+	@Override
 	public String toString() {
 		return "Integer";
 	}

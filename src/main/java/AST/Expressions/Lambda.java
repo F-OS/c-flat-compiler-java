@@ -6,12 +6,12 @@
 
 package AST.Expressions;
 
+import java.util.List;
+
 import AST.Expression;
 import AST.Statement;
 import utils.Entry;
 import visitor.Visitor;
-
-import java.util.List;
 
 public final class Lambda extends Expression {
 	public final List<TypedVar> params;

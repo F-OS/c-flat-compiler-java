@@ -7,10 +7,11 @@
 package AST.Declarations;
 
 
-import AST.Declaration;
-import visitor.Visitor;
-
 import java.util.List;
+
+import AST.Declaration;
+import utils.Entry;
+import visitor.Visitor;
 
 public final class EnumDeclaration extends Declaration {
 	public final String name;
@@ -21,8 +22,8 @@ public final class EnumDeclaration extends Declaration {
 
 	public final List<EnumMember> members;
 
-	public EnumDeclaration(String name, List<EnumMember> members, int line, int character) {
-		super(line, character);
+	public EnumDeclaration(String name, List<EnumMember> members, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.name = name;
 		this.members = members;
 	}

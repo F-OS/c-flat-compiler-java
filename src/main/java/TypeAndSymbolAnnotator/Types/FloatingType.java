@@ -18,6 +18,7 @@ public final class FloatingType extends Type {
 		return instance;
 	}
 
+	@Override
 	public String toString() {
 		return "Floating";
 	}

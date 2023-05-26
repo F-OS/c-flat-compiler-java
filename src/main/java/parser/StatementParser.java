@@ -6,19 +6,17 @@
 
 package parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import AST.Declaration;
 import AST.Expression;
-import AST.Expressions.*;
-import AST.Expressions.OpEnums.BinaryOps;
-import AST.Expressions.OpEnums.UnaryOps;
 import AST.Statement;
+import AST.Expressions.*;
+import AST.Expressions.OpEnums.*;
 import AST.Statements.*;
 import scanner.Token;
 import utils.Entry;
-
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class StatementParser extends ParserState {
 	private StatementParser(List<Token> tokenStream) {
@@ -32,31 +30,47 @@ public final class StatementParser extends ParserState {
 	}
 
 	private static boolean isAssignment(Token currentToken) {
-		return currentToken.type == Token.TokenType.EQUATE
-			   || currentToken.type == Token.TokenType.ADDASSIGN
-			   || currentToken.type == Token.TokenType.SUBASSIGN
-			   || currentToken.type == Token.TokenType.MULASSIGN
-			   || currentToken.type == Token.TokenType.DIVASSIGN
-			   || currentToken.type == Token.TokenType.MODASSIGN
-			   || currentToken.type == Token.TokenType.POWASSIGN
-			   || currentToken.type == Token.TokenType.ANDASSIGN
-			   || currentToken.type == Token.TokenType.ORASSIGN
-			   || currentToken.type == Token.TokenType.RSHIFTASSIGN
-			   || currentToken.type == Token.TokenType.LSHIFTASSIGN
-			   || currentToken.type == Token.TokenType.XORASSIGN;
+		return currentToken.type == Token.TokenType.EQUATE || currentToken.type == Token.TokenType.ADDASSIGN
+			   || currentToken.type == Token.TokenType.SUBASSIGN || currentToken.type == Token.TokenType.MULASSIGN
+			   || currentToken.type == Token.TokenType.DIVASSIGN || currentToken.type == Token.TokenType.MODASSIGN
+			   || currentToken.type == Token.TokenType.POWASSIGN || currentToken.type == Token.TokenType.ANDASSIGN
+			   || currentToken.type == Token.TokenType.ORASSIGN || currentToken.type == Token.TokenType.RSHIFTASSIGN
+			   || currentToken.type == Token.TokenType.LSHIFTASSIGN || currentToken.type == Token.TokenType.XORASSIGN;
 	}
 
 	/**
 	 * Checks whether the given operand returns a boolean.
 	 */
 	private static boolean isaBooleanExpr(Object opEnum) {
-		return opEnum == BinaryOps.LessThan || opEnum == BinaryOps.LessEqual ||
-			   opEnum == BinaryOps.EqualTo || opEnum == BinaryOps.GreaterEqual ||
-			   opEnum == BinaryOps.NotEqualTo || opEnum == BinaryOps.GreaterThan ||
-			   opEnum == BinaryOps.And || opEnum == BinaryOps.Or ||
-			   opEnum == UnaryOps.Not;
+		return opEnum == BinaryOps.LessThan || opEnum == BinaryOps.LessEqual || opEnum == BinaryOps.EqualTo
+			   || opEnum == BinaryOps.GreaterEqual || opEnum == BinaryOps.NotEqualTo || opEnum == BinaryOps.GreaterThan
+			   || opEnum == BinaryOps.And || opEnum == BinaryOps.Or || opEnum == UnaryOps.Not;
 	}
 
+	/**
+	 * Parses a statement.
+	 *
+	 * @return The parsed statement.
+	 * <p>
+	 * ***Grammar:***
+	 * * [Statement] ->
+	 * * * [If]
+	 * * * [For]
+	 * * * [ForEach]
+	 * * * [While]
+	 * * * [DoWhile]
+	 * * * [Continue] ";"
+	 * * * [Break] ";"
+	 * * * [Switch]
+	 * * * [Return] ";"
+	 * * * [Goto] ";"
+	 * * * [Try]
+	 * * * [Throw] ";"
+	 * * * [Label]
+	 * * * [Assignment] ";"
+	 * * * [Expression] ";"
+	 * * * [Block]
+	 */
 	private Statement parseStatement() {
 		Statement retNode = null;
 		Entry<Integer, Integer> loc = getCurrentLocation();
@@ -147,8 +161,8 @@ public final class StatementParser extends ParserState {
 	 * * * "if" "(" Expression ")" Statement "else" Statement
 	 */
 	private Statement parseIf() {
-		Token start = match(Token.TokenType.LPAREN, "Each if statement must contain a conditional enclosed in " +
-													"parentheses.");
+		Token start = match(Token.TokenType.LPAREN,
+				"Each if statement must contain a conditional enclosed in " + "parentheses.");
 		Expression conditional = getConditional("if");
 
 		match(Token.TokenType.RPAREN, "Each if statement must contain a conditional enclosed in parentheses.");
@@ -156,17 +170,11 @@ public final class StatementParser extends ParserState {
 		Statement consequent = parseStatement();
 
 		if (!(consequent instanceof Block)) {
-			System.out.println("WARNING: If statement consequent block on line " + getCurrentLocation().key() +
-							   " is not enclosed in braces.\n" +
-							   " Please be aware that the language grammar is left-associative and" +
-							   " will associate the nearest else with the nearest if. I.E  if (a) if (b) s; else s2; " +
-							   "to if (a)\n" +
-							   "{\n" +
-							   "  if (b)\n" +
-							   "    s;\n" +
-							   "  else\n" +
-							   "    s2;\n" +
-							   "}");
+			System.out.println("WARNING: If statement consequent block on line " + getCurrentLocation().key()
+							   + " is not enclosed in braces.\n"
+							   + " Please be aware that the language grammar is left-associative and"
+							   + " will associate the nearest else with the nearest if. I.E  if (a) if (b) s; else s2; "
+							   + "to if (a)\n" + "{\n" + "  if (b)\n" + "    s;\n" + "  else\n" + "    s2;\n" + "}");
 		}
 
 		Statement alternate = null;
@@ -174,18 +182,13 @@ public final class StatementParser extends ParserState {
 			consumeToken();
 			alternate = parseStatement();
 			if (!(alternate instanceof Block)) {
-				System.out.println(
-						"WARNING: If statement alternate (else) block on line " + getCurrentLocation().key() +
-						" is not enclosed in braces.\n" +
-						" Please be aware that the language grammar is left-associative and" +
-						" will associate the nearest else with the nearest if. I.E  if (a) if (b) s; else s2; " +
-						"to if (a)\n" +
-						"{\n" +
-						"  if (b)\n" +
-						"    s;\n" +
-						"  else\n" +
-						"    s2;\n" +
-						"}");
+				System.out.println("WARNING: If statement alternate (else) block on line " + getCurrentLocation().key()
+								   + " is not enclosed in braces.\n"
+								   + " Please be aware that the language grammar is left-associative and"
+								   +
+								   " will associate the nearest else with the nearest if. I.E  if (a) if (b) s; else s2; "
+								   + "to if (a)\n" + "{\n" + "  if (b)\n" + "    s;\n" + "  else\n" + "    s2;\n" +
+								   "}");
 			}
 
 		}
@@ -213,14 +216,14 @@ public final class StatementParser extends ParserState {
 		Expression conditional = null;
 		Declaration iteration = null;
 
-		if (!(curTokenIsType(Token.TokenType.RPAREN))) {
+		if (!curTokenIsType(Token.TokenType.RPAREN)) {
 			if (curTokenIsType(Token.TokenType.SEMICOLON)) {
 				consumeToken();
 			} else {
 				initializer = parseDeclaration();
 			}
 		}
-		if (!(curTokenIsType(Token.TokenType.RPAREN))) {
+		if (!curTokenIsType(Token.TokenType.RPAREN)) {
 			if (curTokenIsType(Token.TokenType.SEMICOLON)) {
 				consumeToken();
 			} else {
@@ -228,7 +231,7 @@ public final class StatementParser extends ParserState {
 				match(Token.TokenType.SEMICOLON, "For loop conditionals must end with a semicolon.");
 			}
 		}
-		if (!(curTokenIsType(Token.TokenType.RPAREN))) {
+		if (!curTokenIsType(Token.TokenType.RPAREN)) {
 			iteration = parseStatement();
 		}
 
@@ -236,10 +239,10 @@ public final class StatementParser extends ParserState {
 
 		Statement block = parseStatement();
 		if (!(block instanceof Block)) {
-			System.out.println("WARNING: For loop body on line " + getCurrentLocation().key() +
-							   " is not enclosed in braces.\n" +
-							   " Please be aware that this language is not whitespace aware and statements following" +
-							   " the first will not be associated with the loop.");
+			System.out.println(
+					"WARNING: For loop body on line " + getCurrentLocation().key() + " is not enclosed in braces.\n"
+					+ " Please be aware that this language is not whitespace aware and statements following"
+					+ " the first will not be associated with the loop.");
 		}
 		return new For(initializer, conditional, iteration, block, new Entry<>(start.line, start.charNum));
 	}
@@ -255,23 +258,25 @@ public final class StatementParser extends ParserState {
 	 */
 	private Statement parseForEachLoop() {
 		Token start = match(Token.TokenType.LPAREN, "Opening parenthesis expected after 'foreach'.");
-		String itervar = match(Token.TokenType.IDENTIFIER, "Iteration variable identifier expected after the opening " +
-														   "parenthesis of a " +
-														   "foreach " +
-														   "expression.").text;
-		match(Token.TokenType.COLON, "Colon expected after the iteration variable identifier of a 'foreach' " +
-									 "expression.");
-		String collectionvar = match(Token.TokenType.IDENTIFIER, "Collection variable identifier expected after the " +
-																 "colon of a " +
-																 "foreach " +
-																 "expression.").text;
+		String itervar = match(Token.TokenType.IDENTIFIER, """
+				Iteration variable identifier expected after the opening \
+				parenthesis of a \
+				foreach \
+				expression.""").text;
+		match(Token.TokenType.COLON,
+				"Colon expected after the iteration variable identifier of a 'foreach' " + "expression.");
+		String collectionvar = match(Token.TokenType.IDENTIFIER, """
+				Collection variable identifier expected after the \
+				colon of a \
+				foreach \
+				expression.""").text;
 		match(Token.TokenType.RPAREN, "Closing parenthesis expected after 'foreach' control structure.");
 		Statement block = parseStatement();
 		if (!(block instanceof Block)) {
-			System.out.println("WARNING: Foreach loop body on line " + getCurrentLocation().key() +
-							   " is not enclosed in braces.\n" +
-							   " Please be aware that this language is not whitespace aware and statements following" +
-							   " the first will not be associated with the loop.");
+			System.out.println(
+					"WARNING: Foreach loop body on line " + getCurrentLocation().key() + " is not enclosed in braces.\n"
+					+ " Please be aware that this language is not whitespace aware and statements following"
+					+ " the first will not be associated with the loop.");
 		}
 		return new ForEach(itervar, collectionvar, block, new Entry<>(start.line, start.charNum));
 	}
@@ -291,10 +296,10 @@ public final class StatementParser extends ParserState {
 		match(Token.TokenType.RPAREN, "Closing parenthesis expected after 'while' control structure.");
 		Statement block = parseStatement();
 		if (!(block instanceof Block)) {
-			System.out.println("WARNING: While loop body on line " + getCurrentLocation().key() +
-							   " is not enclosed in braces.\n" +
-							   " Please be aware that this language is not whitespace aware and statements following" +
-							   " the first will not be associated with the loop.");
+			System.out.println(
+					"WARNING: While loop body on line " + getCurrentLocation().key() + " is not enclosed in braces.\n"
+					+ " Please be aware that this language is not whitespace aware and statements following"
+					+ " the first will not be associated with the loop.");
 		}
 		return new While(conditional, block, new Entry<>(start.line, start.charNum));
 	}
@@ -316,17 +321,17 @@ public final class StatementParser extends ParserState {
 		Expression conditional = getConditional("do-while");
 		match(Token.TokenType.RPAREN, "Closing parenthesis expected after 'do' control structure.");
 		if (!(block instanceof Block)) {
-			System.out.println("WARNING: Do-While loop body on line " + getCurrentLocation().key() +
-							   " is not enclosed in braces.\n" +
-							   " Please be aware that this language is not whitespace aware and statements following" +
-							   " the first will not be associated with the loop.");
+			System.out.println("WARNING: Do-While loop body on line " + getCurrentLocation().key()
+							   + " is not enclosed in braces.\n"
+							   + " Please be aware that this language is not whitespace aware and statements following"
+							   + " the first will not be associated with the loop.");
 		}
 		return new DoWhile(conditional, block, new Entry<>(start.line, start.charNum));
 	}
 
 	/*
-	 * Checks whether the given node is a valid conditional. Not a substitute for typechecking but it's probably good
-	 *  to catch these things early.
+	 * Checks whether the given node is a valid conditional. Not a substitute for
+	 * typechecking but it's probably good to catch these things early.
 	 */
 	private Expression getConditional(String type) {
 		Expression conditional = parseExpression();
@@ -334,26 +339,39 @@ public final class StatementParser extends ParserState {
 			Object opEnum = op.getOp();
 			// This expression will not enter the kingdom of heaven.
 			if (!isaBooleanExpr(opEnum)) {
-				throw new RuntimeException("ERROR: Bad conditional. " + op.getOp().toString()
-										   + " is not a boolean in " + type + " statement on line " + op.getLine() +
-										   ", character" + op.getCharacter() + " .");
+				throw new RuntimeException("ERROR: Bad conditional. " + op.getOp().toString() + " is not a boolean in "
+										   + type + " statement on line " + op.getLine() + ", character" +
+										   op.getCharacter() + " .");
 			}
 		} else if (conditional instanceof Bool bool) {
-			System.out.println("WARNING: Conditional on line " + getCurrentLocation().key() +
-							   " always evaluates to " +
-							   (bool.bool ? "true" : "false"));
+			System.out.println("WARNING: Conditional on line " + getCurrentLocation().key() + " always evaluates to "
+							   + (bool.bool ? "true" : "false"));
 		} else {
 			throw new RuntimeException("ERROR: Bad conditional. " + conditional.toString()
 									   + " is not a binary conditional in " + type + " statement on line " +
-									   conditional.getLine() +
-									   ", character" + conditional.getCharacter() + " .");
+									   conditional.getLine()
+									   + ", character" + conditional.getCharacter() + " .");
 		}
 		return conditional;
 	}
 
+	/**
+	 * Parses a switch statement
+	 *
+	 * @return The parsed [Switch] statement.
+	 * <p>
+	 * ***Grammar:***
+	 * * SwitchStatement ->
+	 * * * "switch" "(" Expression ")" CasesBlock
+	 * * CasesBlock ->
+	 * * * "{" (CaseBlock)* "}"
+	 * * CaseBlock ->
+	 * * * "case" Primary ":" Block |
+	 * * * "default" ":" Block
+	 */
 	private Statement parseSwitch() {
-		Token start =
-				match(Token.TokenType.LPAREN, "Error: Switch statements must be followed by the expression to switch on.");
+		Token start = match(Token.TokenType.LPAREN,
+				"Error: Switch statements must be followed by the expression to switch on.");
 
 		Expression conditional = parseExpression();
 
@@ -369,38 +387,36 @@ public final class StatementParser extends ParserState {
 				consumeToken();
 				match(Token.TokenType.COLON, "Error: Default expression must be followed by a colon.");
 				exp = new Bool(true, new Entry<>(start.line, start.charNum));
-				block = parseStatement();
 			} else if ("case".equals(getTokenText())) {
 				consumeToken();
 				Expression primary = parseExpression();
-				match(Token.TokenType.COLON, "Error on line " + start.line + ": Case expression must be followed by a" +
-											 " colon.");
+				match(Token.TokenType.COLON,
+						"Error on line " + start.line + ": Case expression must be followed by a" + " colon.");
 				// You might wonder why variable access is in here.
-				// During expression parsing, any identifiers that can't be read as a function call, scoped access,
+				// During expression parsing, any identifiers that can't be read as a function
+				// call, scoped access,
 				// or array index are parsed as variables.
-				// During semantic analysis and symbol-table building, the compiler substitutes any variables
+				// During semantic analysis and symbol-table building, the compiler substitutes
+				// any variables
 				// matching enum members with their defined values.
 				// It just makes stuff easier.
-				if (!((primary instanceof Bool) || (primary instanceof IntegerNode) || (primary instanceof StringLit) ||
-					  (primary instanceof CharNode) || (primary instanceof VariableAccess))) {
-					throw new RuntimeException("Invalid pattern provided to switch case on line " + start.line + ". " +
-											   "Switch accepts " +
-											   "Booleans, " +
-											   "integers, strings, characters, and enum members only.");
+				if ((!(primary instanceof Bool) && !(primary instanceof IntegerNode) && !(primary instanceof StringLit)
+					 && !(primary instanceof CharNode) && !(primary instanceof VariableAccess))) {
+					throw new RuntimeException(
+							"Invalid pattern provided to switch case on line " + start.line + ". " + "Switch accepts "
+							+ "Booleans, " + "integers, strings, characters, and enum members only.");
 				}
 				exp = primary;
-				block = parseStatement();
 			} else {
-				throw new RuntimeException("Invalid identifier provided to switch case on line " + start.line + ". " +
-										   "Switch accepts default:'s and case [primitive]:'s only.");
+				throw new RuntimeException("Invalid identifier provided to switch case on line " + start.line + ". "
+										   + "Switch accepts default:'s and case [primitive]:'s only.");
 			}
+			block = parseStatement();
 
 			cases.add(new Entry<>(exp, block));
 			if (curTokenIsType(Token.TokenType.SEMICOLON) || curTokenIsType(Token.TokenType.EOF)) {
-				throw new RuntimeException(
-						"Error: Unterminated switch block on line " + start.line + ". Did you forget" +
-						" a closing " +
-						"brace?");
+				throw new RuntimeException("Error: Unterminated switch block on line " + start.line + ". Did you forget"
+										   + " a closing brace?");
 			}
 		}
 
@@ -484,9 +500,8 @@ public final class StatementParser extends ParserState {
 		Token tok = getNextToken();
 		if (tok.type == Token.TokenType.SEMICOLON) {
 			return new Return(null, new Entry<>(tok.line, tok.charNum));
-		} else {
-			return new Return(parseExpression(), new Entry<>(tok.line, tok.charNum));
 		}
+		return new Return(parseExpression(), new Entry<>(tok.line, tok.charNum));
 	}
 
 	/**
@@ -503,7 +518,6 @@ public final class StatementParser extends ParserState {
 		String label = matchIdent("Goto statements must be followed by a label.");
 		return new Goto(label, new Entry<>(tok.line, tok.charNum));
 	}
-
 
 	/**
 	 * Parses a try statement
@@ -528,14 +542,15 @@ public final class StatementParser extends ParserState {
 
 		match(Token.TokenType.LPAREN, "'catch' must be followed by an exception to catch.");
 
-		String catches = matchIdent("The opening parenthesis of a catch block must be followed by an exception " +
-									"identifier." +
-									".");
+		String catches = matchIdent("""
+				The opening parenthesis of a catch block must be followed by an exception \
+				identifier.\
+				.""");
 		consumeToken();
 		String catchesAs;
 		if (!curTokenIsType(Token.TokenType.COLON)) {
-			System.out.println("WARNING: Exception not typed at line " + getCurrentLocation().key() + "Type will be " +
-							   "inferred based on the first thrown exception in the try block.");
+			System.out.println("WARNING: Exception not typed at line " + getCurrentLocation().key() + "Type will be "
+							   + "inferred based on the first thrown exception in the try block.");
 			catchesAs = "!!INFER!!";
 		} else {
 			consumeToken();
@@ -571,15 +586,15 @@ public final class StatementParser extends ParserState {
 		List<Expression> params = new ArrayList<>(32);
 
 		while (true) {
-			if (curTokenIsType(Token.TokenType.LPAREN)) {
+			if (curTokenIsType(Token.TokenType.RPAREN)) {
 				consumeToken();
 				break;
-			} else if (curTokenIsType(Token.TokenType.COMMA)) {
+			}
+			if (curTokenIsType(Token.TokenType.COMMA)) {
 				consumeToken();
 			} else if (curTokenIsType(Token.TokenType.EOF) || curTokenIsType(Token.TokenType.SEMICOLON)) {
-				throw new RuntimeException("Error on line " + tok.line + ": Invalid exception. Parameter list is not" +
-										   " " +
-										   "terminated.");
+				throw new RuntimeException("Error on line " + tok.line + ": Invalid exception. Parameter list is not"
+										   + " " + "terminated.");
 			} else {
 				params.add(parseExpression());
 			}
@@ -611,19 +626,16 @@ public final class StatementParser extends ParserState {
 		return new Block(block, new Entry<>(tok.line, tok.charNum));
 	}
 
-
 	private Declaration parseDeclaration() {
-		Entry<Declaration, Integer> declaration =
-				DeclarationParser.parseDeclaration(getTokenStream().subList(getCurrentPosition(),
-						getTokenStream().size()));
+		Entry<Declaration, Integer> declaration = DeclarationParser
+														  .parseDeclaration(getTokenStream().subList(getCurrentPosition(), getTokenStream().size()));
 		advanceLocation(declaration.value());
 		return declaration.key();
 	}
 
 	private Expression parseExpression() {
-		Entry<Expression, Integer> expression =
-				ExpressionParser.parseExpression(getTokenStream().subList(getCurrentPosition(),
-						getTokenStream().size()));
+		Entry<Expression, Integer> expression = ExpressionParser
+														.parseExpression(getTokenStream().subList(getCurrentPosition(), getTokenStream().size()));
 		advanceLocation(expression.value());
 		return expression.key();
 	}

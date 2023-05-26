@@ -6,20 +6,22 @@
 
 package AST.Declarations;
 
-import AST.Declaration;
-import AST.Statements.Block;
-import visitor.Visitor;
-
 import java.util.List;
+
+import AST.Declaration;
+import AST.Statement;
+import utils.Entry;
+import visitor.Visitor;
 
 public final class FunctionDeclaration extends Declaration {
 	public String name;
 	public List<TypedVar> parameters;
 	public String returnType;
-	public Block body;
+	public Statement body;
 
-	public FunctionDeclaration(String name, List<TypedVar> parameters, String returnType, Block body, int line, int character) {
-		super(line, character);
+	public FunctionDeclaration(String name, List<TypedVar> parameters, String returnType, Statement body, Entry<Integer,
+																													   Integer> loc) {
+		super(loc.key(), loc.value());
 		this.name = name;
 		this.parameters = parameters;
 		this.returnType = returnType;

@@ -6,13 +6,12 @@
 
 package AST.Statements;
 
-import AST.Expression;
-import AST.Statement;
-import visitor.Visitor;
-
 import java.util.List;
 
+import AST.Expression;
+import AST.Statement;
 import utils.Entry;
+import visitor.Visitor;
 
 public final class Switch extends Statement {
 	public final Expression switchon;

@@ -9,6 +9,7 @@ package TypeAndSymbolAnnotator.Types;
 import TypeAndSymbolAnnotator.Type;
 
 public final class NullType extends Type {
+	@Override
 	public String toString() {
 		return "Null Type";
 	}

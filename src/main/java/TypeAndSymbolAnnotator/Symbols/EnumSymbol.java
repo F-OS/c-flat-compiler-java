@@ -6,10 +6,9 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
-import TypeAndSymbolAnnotator.Symbol;
-
 import java.util.List;
-import java.util.stream.Collectors;
+
+import TypeAndSymbolAnnotator.Symbol;
 
 public final class EnumSymbol extends Symbol {
 	public final List<String> members;

@@ -6,14 +6,14 @@
 
 package scanner;
 
+import static scanner.Token.TokenType.*;
+import static scanner.Token.*;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static scanner.Token.TokenType.*;
 
 /*
  * This refactored tokenizer is an adaptation of:
@@ -101,23 +101,17 @@ public final class Tokenizer {
 	}
 
 	private final ArrayList<Token> result;
-	private final Map<String, String> escapeSequences = Map.ofEntries(
-			Map.entry("n", "\n"),
-			Map.entry("r", "\r"),
-			Map.entry("t", "\t"),
-			Map.entry("b", "\b"),
-			Map.entry("\\", "\\"),
-			Map.entry("\"", "\"")
-	);
+	private final Map<String, String> escapeSequences = Map.ofEntries(Map.entry("n", "\n"), Map.entry("r", "\r"),
+			Map.entry("t", "\t"), Map.entry("b", "\b"), Map.entry("\\", "\\"), Map.entry("\"", "\""));
 	private String input;
 	private int line;
 	private int col;
 
 	private Tokenizer(String in) {
-		this.result = new ArrayList<>();
-		this.input = in;
-		this.line = 1;
-		this.col = 1;
+		result = new ArrayList<>();
+		input = in;
+		line = 1;
+		col = 1;
 	}
 
 	public static ArrayList<Token> tokenize(String input) {
@@ -185,7 +179,7 @@ public final class Tokenizer {
 	private void skipComments() {
 		if (input.startsWith("//")) {
 			consumeInput(2);
-			while ((input.charAt(0) != '\n') && (input.charAt(0) != '\r')) {
+			while (input.charAt(0) != '\n' && input.charAt(0) != '\r') {
 				consumeInput(1);
 			}
 			consumeInput(1);
@@ -216,9 +210,8 @@ public final class Tokenizer {
 			result.add(new Token(ty, m.group(), line, col));
 			consumeInput(m.end());
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	private boolean isIdent() {
@@ -274,7 +267,6 @@ public final class Tokenizer {
 				consumeInput(1);
 				String key = input.substring(0, 1);
 				stringLiteral.append(escapeSequences.getOrDefault(key, key).charAt(0));
-				consumeInput(1);
 			} else if (c == '\n' || c == '\r') {
 				error("Unterminated String Literal.");
 				break;
@@ -283,8 +275,8 @@ public final class Tokenizer {
 				break;
 			} else {
 				stringLiteral.append(c);
-				consumeInput(1);
 			}
+			consumeInput(1);
 
 			if (input.isEmpty()) {
 				error("Unterminated String Literal.");

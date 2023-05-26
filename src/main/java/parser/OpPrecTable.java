@@ -6,13 +6,14 @@
 
 package parser;
 
-import AST.Expressions.OpEnums.BinaryOps;
+import java.util.List;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+
+import AST.Expressions.OpEnums.BinaryOps;
 import scanner.Token;
 import utils.Entry;
-
-import java.util.List;
 
 public final class OpPrecTable {
 	private static final List<List<Entry<Token.TokenType, BinaryOps>>> precedence = List.of(

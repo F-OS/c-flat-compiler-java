@@ -1,16 +1,14 @@
-import AST.Expression;
-import AST.Statement;
-import parser.ExpressionParser;
-import parser.StatementParser;
-import scanner.*;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import AST.Statement;
+import parser.StatementParser;
+import scanner.Token;
+import scanner.Tokenizer;
 
 public class Main {
 	public static void main(String[] args) {
