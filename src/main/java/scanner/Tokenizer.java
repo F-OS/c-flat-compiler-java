@@ -47,6 +47,7 @@ public final class Tokenizer {
 		keywords.put("var", VAR);
 		keywords.put("array", ARRAY);
 		keywords.put("enum", ENUM);
+		keywords.put("catch", CATCH);
 		keywords.put("class", CLASS);
 		keywords.put("struct", STRUCT);
 		keywords.put("true", TRUE);
@@ -126,8 +127,9 @@ public final class Tokenizer {
 	}
 
 	private boolean isPrimitive() {
-		for (String token : primitives.keySet()) {
-			if (tryToken(token, primitives.get(token))) {
+		for (Map.Entry<String, Token.TokenType> entry : primitives.entrySet()) {
+			String key = entry.getKey();
+			if (tryToken(key, primitives.get(key))) {
 				return true;
 			}
 		}

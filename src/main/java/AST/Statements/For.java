@@ -8,6 +8,7 @@ package AST.Statements;
 
 import AST.Declaration;
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class For extends Statement {
@@ -16,8 +17,8 @@ public final class For extends Statement {
 	public final Declaration iteration;
 	public final Statement body;
 
-	public For(Declaration initializer, Declaration conditional, Declaration iteration, Statement body, int line, int character) {
-		super(line, character);
+	public For(Declaration initializer, Declaration conditional, Declaration iteration, Statement body, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.initializer = initializer;
 		this.conditional = conditional;
 		this.iteration = iteration;

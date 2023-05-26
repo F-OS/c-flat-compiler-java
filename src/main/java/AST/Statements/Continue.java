@@ -7,11 +7,12 @@
 package AST.Statements;
 
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Continue extends Statement {
-	public Continue(int line, int character) {
-		super(line, character);
+	public Continue(Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 	}
 
 	@Override

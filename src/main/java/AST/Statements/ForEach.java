@@ -7,6 +7,7 @@
 package AST.Statements;
 
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class ForEach extends Statement {
@@ -14,8 +15,8 @@ public final class ForEach extends Statement {
 	public final String collectionvar;
 	public final Statement body;
 
-	public ForEach(String iterval, String collectionvar, Statement body, int line, int character) {
-		super(line, character);
+	public ForEach(String iterval, String collectionvar, Statement body, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.iterval = iterval;
 		this.collectionvar = collectionvar;
 		this.body = body;

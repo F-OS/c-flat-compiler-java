@@ -8,6 +8,7 @@ package AST.Statements;
 
 import AST.Expression;
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class If extends Statement {
@@ -15,8 +16,8 @@ public final class If extends Statement {
 	public final Statement consequent;
 	public final Statement alternate;
 
-	public If(Expression conditional, Statement consequent, Statement alternate, int line, int character) {
-		super(line, character);
+	public If(Expression conditional, Statement consequent, Statement alternate, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.conditional = conditional;
 		this.consequent = consequent;
 		this.alternate = alternate;

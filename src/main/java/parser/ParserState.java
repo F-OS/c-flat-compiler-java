@@ -13,6 +13,11 @@ import java.util.List;
 import utils.Entry;
 
 public class ParserState {
+	enum RequiresSemicolon {
+		SEMICOLON_REQUIRED,
+		NO_SEMICOLON_REQUIRED
+	}
+
 	private final List<Token> tokenStream;
 	private int currentPosition;
 
@@ -29,6 +34,14 @@ public class ParserState {
 		return new Token(Token.TokenType.EOF, "", -1, -1);
 	}
 
+	public Token getNextToken() {
+		if (currentPosition + 1 < tokenStream.size()) {
+			return tokenStream.get(currentPosition + 1);
+		}
+		// Return a special "end of input" token
+		return new Token(Token.TokenType.EOF, "", -1, -1);
+	}
+
 	public Token consumeToken() {
 		Token tok = getCurrentToken();
 		currentPosition++;
@@ -37,6 +50,11 @@ public class ParserState {
 
 	public boolean curTokenIsType(Token.TokenType tokType) {
 		Token tok = getCurrentToken();
+		return tok.type == tokType;
+	}
+
+	public boolean nextTokenIsType(Token.TokenType tokType) {
+		Token tok = getNextToken();
 		return tok.type == tokType;
 	}
 

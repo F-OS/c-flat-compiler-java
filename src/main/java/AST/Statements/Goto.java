@@ -7,13 +7,14 @@
 package AST.Statements;
 
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Goto extends Statement {
 	public final String gotoident;
 
-	public Goto(String gotoident, int line, int character) {
-		super(line, character);
+	public Goto(String gotoident, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.gotoident = gotoident;
 	}
 

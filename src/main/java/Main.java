@@ -1,5 +1,7 @@
 import AST.Expression;
+import AST.Statement;
 import parser.ExpressionParser;
+import parser.StatementParser;
 import scanner.*;
 
 import java.io.IOException;
@@ -48,7 +50,7 @@ public class Main {
 
 	private static void runcode(String line) {
 		List<Token> tokens = Tokenizer.tokenize(line);
-		Expression exprTree = ExpressionParser.parseExpression(tokens);
+		Statement exprTree = StatementParser.parseStatement(tokens).key();
 		System.out.println(exprTree);
 	}
 }

@@ -19,7 +19,7 @@ public class Token {
 		DOT, EQUATE, COMMA, SEMICOLON,
 		LBRACE, RBRACE, LBRACKET, RBRACKET, LPAREN, RPAREN,
 		QMARK, COLON,
-		IF, ELSE, FOR, FOREACH, WHILE, DO, SWITCH, TRY, CONTINUE, BREAK, RETURN, GOTO, THROW, VAR, ARRAY, ENUM, CLASS, STRUCT, FUN,
+		IF, ELSE, FOR, FOREACH, WHILE, DO, SWITCH, TRY, CONTINUE, BREAK, RETURN, GOTO, THROW, VAR, ARRAY, ENUM, CLASS, STRUCT, FUN, CATCH,
 		TRUE, FALSE,
 		UNIMPLEMENTED, EOF
 	}
@@ -47,10 +47,10 @@ public class Token {
 	public boolean equals(Object obj) {
 		if (obj instanceof Token tok) {
 			return
-					this.type.equals(tok.type) &&
-					this.text.equals(tok.text) &&
+					this.type == tok.type &&
 					this.line == tok.line &&
-					this.charNum == tok.charNum;
+					this.charNum == tok.charNum &&
+					this.text.equals(tok.text);
 		} else {
 			return false;
 		}

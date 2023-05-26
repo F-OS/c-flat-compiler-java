@@ -31,7 +31,7 @@ public abstract class ASTRoot implements Visitable {
 
 	public void setAssociatedType(Type associatedType) {
 		if (isTyped) {
-			throw new IllegalStateException("Object has already been typed.");
+			throw new IllegalStateException("Object " + this + " has already been typed.");
 		}
 		this.associatedType = associatedType;
 	}

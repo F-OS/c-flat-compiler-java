@@ -18,8 +18,8 @@ public final class Switch extends Statement {
 	public final Expression switchon;
 	public final List<Entry<Expression, Statement>> cases;
 
-	public Switch(Expression switchon, List<Entry<Expression, Statement>> cases, int line, int character) {
-		super(line, character);
+	public Switch(Expression switchon, List<Entry<Expression, Statement>> cases, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.switchon = switchon;
 		this.cases = cases;
 	}

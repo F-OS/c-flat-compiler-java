@@ -8,13 +8,14 @@ package AST.Statements;
 
 import AST.Expression;
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Return extends Statement {
 	public final Expression expr;
 
-	public Return(Expression expr, int line, int character) {
-		super(line, character);
+	public Return(Expression expr, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.expr = expr;
 	}
 

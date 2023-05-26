@@ -8,6 +8,7 @@ package AST.Statements;
 
 import AST.Expression;
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 import java.util.List;
@@ -16,8 +17,8 @@ public final class Throw extends Statement {
 	public final String ident;
 	public final List<Expression> params;
 
-	public Throw(String ident, List<Expression> params, int line, int character) {
-		super(line, character);
+	public Throw(String ident, List<Expression> params, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.ident = ident;
 		this.params = params;
 	}

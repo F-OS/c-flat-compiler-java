@@ -7,6 +7,7 @@
 package AST.Statements;
 
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Try extends Statement {
@@ -15,8 +16,8 @@ public final class Try extends Statement {
 	public final String catchesAs;
 	public final Statement catch_;
 
-	public Try(Statement block, String catches, String catchesAs, Statement catch_, int line, int character) {
-		super(line, character);
+	public Try(Statement block, String catches, String catchesAs, Statement catch_, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.block = block;
 		this.catches = catches;
 		this.catchesAs = catchesAs;

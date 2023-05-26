@@ -8,14 +8,15 @@ package AST.Statements;
 
 import AST.Expression;
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class DoWhile extends Statement {
 	public final Expression conditional;
 	public final Statement body;
 
-	public DoWhile(Expression conditional, Statement body, int line, int character) {
-		super(line, character);
+	public DoWhile(Expression conditional, Statement body, Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 		this.conditional = conditional;
 		this.body = body;
 	}

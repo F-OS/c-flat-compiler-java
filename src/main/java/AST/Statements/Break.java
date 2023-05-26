@@ -7,11 +7,12 @@
 package AST.Statements;
 
 import AST.Statement;
+import utils.Entry;
 import visitor.Visitor;
 
 public final class Break extends Statement {
-	public Break(int line, int character) {
-		super(line, character);
+	public Break(Entry<Integer, Integer> loc) {
+		super(loc.key(), loc.value());
 	}
 
 	@Override

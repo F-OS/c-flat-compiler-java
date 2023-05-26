@@ -64,11 +64,21 @@ public final class OpPrecTable {
 	}
 
 	static public BinaryOps mapSymbolToOp(int precedence, Token token) {
+		List<Entry<Token.TokenType, BinaryOps>> table = getTable(precedence);
+		if (table == null) {
+			throw new IllegalArgumentException("Precedence table used without checking first if a valid precedence " +
+											   "number was provided. Precedence number is " + precedence + " which " +
+											   "is above the table size of " + tablesize);
+		}
 		for (Entry<Token.TokenType, BinaryOps> entry : getTable(precedence)) {
 			if (entry.key() == token.type) {
 				return entry.value();
 			}
 		}
 		throw new IllegalArgumentException("Unknown token: " + token);
+	}
+
+	public static boolean hasTable(int precedence) {
+		return precedence >= tablesize;
 	}
 }
