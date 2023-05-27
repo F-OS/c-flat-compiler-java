@@ -6,12 +6,11 @@
 
 package AST.Statements;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
 
 public final class Throw extends Statement {
 	public final String ident;
@@ -26,5 +25,21 @@ public final class Throw extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Throw";
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Throw{ident=").append(ident).append(", param=(");
+		for (Expression param : params) {
+			sb.append(param).append(",");
+		}
+		sb.append(")}").append("@(").append(getLine()).append(", ").append(getCharacter()).append(")");
+		return sb.toString();
 	}
 }

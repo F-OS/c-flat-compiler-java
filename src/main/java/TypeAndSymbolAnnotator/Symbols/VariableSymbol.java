@@ -6,8 +6,7 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
-import TypeAndSymbolAnnotator.Symbol;
-import TypeAndSymbolAnnotator.Type;
+import TypeAndSymbolAnnotator.*;
 
 public final class VariableSymbol extends Symbol {
 	public final Type type;

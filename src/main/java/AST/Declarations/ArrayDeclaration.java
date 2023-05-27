@@ -6,12 +6,12 @@
 
 package AST.Declarations;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Declaration;
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class ArrayDeclaration extends Declaration {
 	public final TypedVar typedVar;
@@ -28,5 +28,23 @@ public final class ArrayDeclaration extends Declaration {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String toString() {
+		String defs;
+		if (definition == null || definition.isEmpty()) {
+			defs = "{}";
+		} else {
+			defs = "{" + definition.stream().map(Expression::toString).collect(Collectors.joining(", ")) + "}";
+		}
+		defs += "@(" + getLine() + ", " + getCharacter() + ")";
+		return "ArrayDeclaration{typedVar=" + typedVar.toString() + ", size=" + size + ",definition=" + defs + "}@(" + getLine() + ", " +
+			   getCharacter() + ")";
+	}
+
+	@Override
+	public String nodeToString() {
+		return "ArrayDeclaration";
 	}
 }

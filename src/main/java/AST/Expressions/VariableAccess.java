@@ -7,9 +7,9 @@
 package AST.Expressions;
 
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 
 public final class VariableAccess extends Expression {
@@ -23,6 +23,17 @@ public final class VariableAccess extends Expression {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "VariableAccess";
+	}
+
+	@Override
+	public String toString() {
+		return "VariableAccess{ident=" + ident +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }
 

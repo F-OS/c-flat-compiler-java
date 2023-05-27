@@ -6,11 +6,12 @@
 
 package AST.Declarations;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Declaration;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class StructDeclaration extends Declaration {
 	public final String name;
@@ -25,5 +26,26 @@ public final class StructDeclaration extends Declaration {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "StructDeclaration";
+	}
+
+	public String toString() {
+		String bodyMembers;
+		if (members != null && !members.isEmpty()) {
+			bodyMembers = "{" + members.stream().map(Declaration::toString).collect(Collectors.joining(", ")) + "}";
+		} else {
+			bodyMembers = "{}";
+		}
+		bodyMembers += "@(" + getLine() + ", " + getCharacter() + ")";
+		return "StructDeclaration{" +
+			   "name=" +
+			   name +
+			   ", members=" +
+			   bodyMembers +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

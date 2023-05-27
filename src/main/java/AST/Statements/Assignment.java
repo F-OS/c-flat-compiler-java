@@ -6,10 +6,9 @@
 
 package AST.Statements;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Assignment extends Statement {
 	public final Expression ident;
@@ -24,5 +23,16 @@ public final class Assignment extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Assignment";
+	}
+
+	@Override
+	public String toString() {
+		return "Assignment{ident=" + ident.toString() + ", value=" + expr.toString() +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

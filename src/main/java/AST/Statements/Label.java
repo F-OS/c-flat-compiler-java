@@ -6,9 +6,9 @@
 
 package AST.Statements;
 
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Label extends Statement {
 	public final String ident;
@@ -21,5 +21,15 @@ public final class Label extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Label";
+	}
+
+	@Override
+	public String toString() {
+		return "Label{" + ident + "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

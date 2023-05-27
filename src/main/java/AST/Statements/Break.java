@@ -6,9 +6,9 @@
 
 package AST.Statements;
 
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Break extends Statement {
 	public Break(Entry<Integer, Integer> loc) {
@@ -18,5 +18,15 @@ public final class Break extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Break";
+	}
+
+	@Override
+	public String toString() {
+		return "Break{null}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

@@ -6,18 +6,22 @@
 
 package AST.Declarations;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Declaration;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class ClassDeclaration extends Declaration {
 	public final String name;
 	public final List<Declaration> members;
 	public final List<String> inheritsFrom;
 
-	public ClassDeclaration(String name, List<Declaration> members, List<String> inheritsFrom, Entry<Integer, Integer> loc) {
+	public ClassDeclaration(
+			String name, List<Declaration> members,
+			List<String> inheritsFrom, Entry<Integer, Integer> loc
+	) {
 		super(loc.key(), loc.value());
 		this.name = name;
 		this.members = members;
@@ -27,5 +31,30 @@ public final class ClassDeclaration extends Declaration {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String toString() {
+		String inheritance;
+		if (inheritsFrom != null && !inheritsFrom.isEmpty()) {
+			inheritance = "{" + inheritsFrom.stream().map(String::toString).collect(Collectors.joining(", ")) + "}";
+		} else {
+			inheritance = "{}";
+		}
+		inheritance += "@(" + getLine() + ", " + getCharacter() + ")";
+		String classMembers;
+		if (members != null && !members.isEmpty()) {
+			classMembers = "{" + members.stream().map(Declaration::toString).collect(Collectors.joining(", ")) + "}";
+		} else {
+			classMembers = "{}";
+		}
+		classMembers += "@(" + getLine() + ", " + getCharacter() + ")";
+		return "ClassDeclaration{name=" + name + ", members=" + classMembers + ", inheritsFrom=" + inheritance + "}@(" + getLine() + ", " +
+			   getCharacter() + ")";
+	}
+
+	@Override
+	public String nodeToString() {
+		return "ClassDeclaration";
 	}
 }

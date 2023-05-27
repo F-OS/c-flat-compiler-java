@@ -6,9 +6,9 @@
 
 package AST.Statements;
 
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Try extends Statement {
 	public final Statement block;
@@ -28,4 +28,16 @@ public final class Try extends Statement {
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "Try";
+	}
+
+	@Override
+	public String toString() {
+		return "Try{block=" + block + ", Catches{catches=" + catches + ", catchesAs=" + catchesAs +
+			   "}, Catch=" + catch_ + "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

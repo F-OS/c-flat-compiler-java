@@ -6,10 +6,9 @@
 
 package AST.Declarations;
 
-import AST.Declaration;
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class SimpleVarDeclaration extends Declaration {
 	public final TypedVar typedVar;
@@ -24,5 +23,18 @@ public final class SimpleVarDeclaration extends Declaration {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "SimpleVarDeclaration";
+	}
+
+	@Override
+	public String toString() {
+		return "VarDeclaration{name=" + typedVar.name() + ", type=" + typedVar.type() +
+			   ", assignTo=" +
+			   ((definition == null) ? "null" : definition.toString()) +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

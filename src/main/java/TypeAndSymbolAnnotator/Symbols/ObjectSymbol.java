@@ -6,8 +6,7 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
-import TypeAndSymbolAnnotator.Scope;
-import TypeAndSymbolAnnotator.Symbol;
+import TypeAndSymbolAnnotator.*;
 
 public final class ObjectSymbol extends Symbol {
 	public final Scope associatedScope;

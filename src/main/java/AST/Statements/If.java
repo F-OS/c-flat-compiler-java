@@ -6,10 +6,9 @@
 
 package AST.Statements;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class If extends Statement {
 	public final Expression conditional;
@@ -27,4 +26,18 @@ public final class If extends Statement {
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "If";
+	}
+
+	@Override
+	public String toString() {
+		String alt = alternate != null ? ("{" + alternate.toString() + "}") : "null";
+		return "If{conditional=" + conditional.toString() + ", consequent={" +
+			   consequent.toString() +
+			   "}, alternate=" + alt + "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

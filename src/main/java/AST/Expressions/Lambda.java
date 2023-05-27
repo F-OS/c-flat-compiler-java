@@ -6,12 +6,12 @@
 
 package AST.Expressions;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class Lambda extends Expression {
 	public final List<TypedVar> params;
@@ -28,5 +28,21 @@ public final class Lambda extends Expression {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Lambda";
+	}
+
+	@Override
+	public String toString() {
+		return "Lambda{" +
+			   "parameters=(" +
+			   params.stream().map(x -> x.name() + ": " + x.type()).collect(Collectors.joining(", ")) +
+			   ") -> " + returnType + "," +
+			   ", body={" +
+			   block.toString() +
+			   "}}@(" + getLine() + ", " + getCharacter() + ")\n";
 	}
 }

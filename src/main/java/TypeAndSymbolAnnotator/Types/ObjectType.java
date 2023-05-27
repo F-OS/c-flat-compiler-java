@@ -6,8 +6,7 @@
 
 package TypeAndSymbolAnnotator.Types;
 
-import TypeAndSymbolAnnotator.Scope;
-import TypeAndSymbolAnnotator.Type;
+import TypeAndSymbolAnnotator.*;
 
 public final class ObjectType extends Type {
 	private final String name;

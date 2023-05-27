@@ -6,12 +6,11 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import TypeAndSymbolAnnotator.*;
 import com.sun.source.tree.Scope;
 
-import TypeAndSymbolAnnotator.Symbol;
+import java.util.*;
+import java.util.stream.*;
 
 public final class ClassSymbol extends Symbol {
 	public final List<ClassSymbol> inherit;

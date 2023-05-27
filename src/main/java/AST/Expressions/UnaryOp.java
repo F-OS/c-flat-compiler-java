@@ -6,10 +6,10 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import AST.Expressions.OpEnums.UnaryOps;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import AST.Expressions.OpEnums.*;
+import utils.*;
+import visitor.*;
 
 public final class UnaryOp extends Op {
 	public final UnaryOps op;
@@ -29,5 +29,16 @@ public final class UnaryOp extends Op {
 	@Override
 	public UnaryOps getOp() {
 		return op;
+	}
+
+	@Override
+	public String nodeToString() {
+		return "UnaryOp";
+	}
+
+	@Override
+	public String toString() {
+		return "UnaryOp{op=" + op.toString() + ", inner=" + inner.toString() +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

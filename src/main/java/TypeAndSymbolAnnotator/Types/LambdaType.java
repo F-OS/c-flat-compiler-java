@@ -6,8 +6,8 @@
 
 package TypeAndSymbolAnnotator.Types;
 
-import TypeAndSymbolAnnotator.Type;
-import TypeAndSymbolAnnotator.Symbols.FunctionSymbol;
+import TypeAndSymbolAnnotator.Symbols.*;
+import TypeAndSymbolAnnotator.*;
 
 public final class LambdaType extends Type {
 	final FunctionSymbol func;

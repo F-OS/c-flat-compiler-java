@@ -6,9 +6,9 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Ternary extends Expression {
 	public final Expression condition;
@@ -26,4 +26,16 @@ public final class Ternary extends Expression {
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "Ternary";
+	}
+
+	@Override
+	public String toString() {
+		return "Ternary{condition=" + condition.toString() + ", consequent=" + consequent.toString() + ", alternate=" + alternate.toString() +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

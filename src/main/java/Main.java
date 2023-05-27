@@ -1,14 +1,12 @@
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Scanner;
+import AST.*;
+import parser.*;
+import scanner.*;
+import utils.*;
 
-import AST.Statement;
-import parser.StatementParser;
-import scanner.Token;
-import scanner.Tokenizer;
+import java.io.*;
+import java.nio.charset.*;
+import java.nio.file.*;
+import java.util.*;
 
 public class Main {
 	public static void main(String[] args) {
@@ -30,25 +28,37 @@ public class Main {
 		} catch (IOException e) {
 			System.out.println("The file " + path + " is not valid or you do not have correct permissions.");
 		}
-		Main.runcode(code);
+		runcode(code);
 	}
 
 	private static void runPrompt() {
 		Scanner reader = new Scanner(System.in, StandardCharsets.UTF_8);
-		while (true) {
+		System.out.print("> ");
+		String line = reader.nextLine();
+		do {
+			runcode(line);
 			System.out.print("> ");
-			String line = reader.nextLine();
-			if (line != null && !line.isEmpty()) {
-				runcode(line);
-			} else {
-				break;
-			}
-		}
+			line = reader.nextLine();
+		} while (line != null && !line.isEmpty());
+		reader.close();
 	}
 
 	private static void runcode(String line) {
 		List<Token> tokens = Tokenizer.tokenize(line);
-		Statement exprTree = StatementParser.parseStatement(tokens).key();
-		System.out.println(exprTree);
+		List<Declaration> declTree = parseProgram(tokens);
+		for (Declaration decl : declTree) {
+			String formattedAST = ASTFormatter.formatAST(decl.toString());
+			System.out.println(formattedAST);
+		}
+	}
+
+	private static List<Declaration> parseProgram(List<Token> tokens) {
+		List<Declaration> decls = new ArrayList<>(128);
+		ParsingContext context = new ParsingContext(tokens);
+		do {
+			Declaration decl = DeclarationParser.parseDeclaration(context);
+			decls.add(decl);
+		} while (context.isEmpty());
+		return decls;
 	}
 }

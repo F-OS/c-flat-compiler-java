@@ -6,21 +6,37 @@
 
 package AST.Statements;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Return extends Statement {
 	public final Expression expr;
 
+	public final boolean nullRet;
+
 	public Return(Expression expr, Entry<Integer, Integer> loc) {
 		super(loc.key(), loc.value());
 		this.expr = expr;
+		nullRet = this.expr == null;
 	}
 
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Return";
+	}
+
+	@Override
+	public String toString() {
+		if (nullRet) {
+			return "Return{expr=null}" + "@(" + getLine() + ", " + getCharacter() + ")";
+		} else {
+			return "Return{expr=" + expr + "}" + "@(" + getLine() + ", " + getCharacter() + ")";
+		}
 	}
 }

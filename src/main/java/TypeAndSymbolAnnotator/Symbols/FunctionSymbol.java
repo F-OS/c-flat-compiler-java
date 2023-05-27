@@ -6,19 +6,19 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import AST.ASTRoot.*;
+import AST.*;
+import TypeAndSymbolAnnotator.*;
 
-import AST.ASTRoot;
-import AST.Declaration;
-import TypeAndSymbolAnnotator.Symbol;
+import java.util.*;
+import java.util.stream.*;
 
 public final class FunctionSymbol extends Symbol {
-	public final List<ASTRoot.TypedVar> params;
+	public final List<TypedVar> params;
 	public final String returnType;
 	public final List<Declaration> decls;
 
-	public FunctionSymbol(String name, List<ASTRoot.TypedVar> params, String returnType, List<Declaration> decls) {
+	public FunctionSymbol(String name, List<TypedVar> params, String returnType, List<Declaration> decls) {
 		super(name);
 		this.params = params;
 		this.returnType = returnType;
@@ -28,7 +28,7 @@ public final class FunctionSymbol extends Symbol {
 	@Override
 	public String toString() {
 		String paramsString = params.stream()
-									  .map(ASTRoot.TypedVar::toString)
+									  .map(TypedVar::toString)
 									  .collect(Collectors.joining(", "));
 		return name + ": (" + paramsString + ") -> " + returnType;
 	}

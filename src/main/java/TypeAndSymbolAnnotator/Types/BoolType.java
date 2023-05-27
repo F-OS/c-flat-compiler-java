@@ -6,7 +6,7 @@
 
 package TypeAndSymbolAnnotator.Types;
 
-import TypeAndSymbolAnnotator.Type;
+import TypeAndSymbolAnnotator.*;
 
 public final class BoolType extends Type {
 	public BoolType() {

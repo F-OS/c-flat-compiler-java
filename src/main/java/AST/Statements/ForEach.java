@@ -6,9 +6,9 @@
 
 package AST.Statements;
 
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class ForEach extends Statement {
 	public final String iterval;
@@ -25,5 +25,18 @@ public final class ForEach extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "ForEach";
+	}
+
+	public String toString() {
+		String iter = ", iterationVariable=" + iterval;
+		String collection = ", collectionVariable=" + collectionvar;
+		return "ForEach{" + iter + collection + ", body={" +
+			   body.toString() +
+			   "}}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

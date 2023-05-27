@@ -6,12 +6,12 @@
 
 package AST.Statements;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Declaration;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class Block extends Statement {
 	public final List<Declaration> statements;
@@ -24,5 +24,16 @@ public final class Block extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Block";
+	}
+
+	@Override
+	public String toString() {
+		return "Block{" + statements.stream().map(Declaration::toString).collect(Collectors.joining(", ")) +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

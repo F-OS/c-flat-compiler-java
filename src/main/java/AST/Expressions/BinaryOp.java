@@ -6,10 +6,10 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import AST.Expressions.OpEnums.BinaryOps;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import AST.Expressions.OpEnums.*;
+import utils.*;
+import visitor.*;
 
 public final class BinaryOp extends Op {
 	public final Expression left;
@@ -32,4 +32,16 @@ public final class BinaryOp extends Op {
 	public BinaryOps getOp() {
 		return op;
 	}
+
+	@Override
+	public String nodeToString() {
+		return "BinaryOp";
+	}
+
+	@Override
+	public String toString() {
+		return "BinaryOp{op=" + op.toString() + ", left=" + left.toString() + ", right=" + right.toString() +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

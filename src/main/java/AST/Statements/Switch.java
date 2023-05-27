@@ -6,12 +6,11 @@
 
 package AST.Statements;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
 
 public final class Switch extends Statement {
 	public final Expression switchon;
@@ -27,4 +26,21 @@ public final class Switch extends Statement {
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "Switch";
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Switch{expr=").append(switchon).append(", ");
+		for (Entry<Expression, Statement> entry : cases) {
+			sb.append("Case{condition=").append(entry.key()).append(", block=").append(entry.value()).append("},");
+		}
+		sb.append("}").append("@(").append(getLine()).append(", ").append(getCharacter()).append(")");
+		return sb.toString();
+	}
+
 }

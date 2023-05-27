@@ -6,16 +6,13 @@
 
 package TypeAndSymbolAnnotator;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public abstract class Type {
-	@Override
-	public String toString() {
-		return "!!BADTYPE!!";
-	}
+	protected final List<Type> promotionlist = new ArrayList<>();
 
-	protected List<Type> promotionlist = new ArrayList<>();
+	@Override
+	public abstract String toString();
 
 	public boolean canPromoteTo(Type right) {
 		return promotionlist.stream().anyMatch(t -> t == right);

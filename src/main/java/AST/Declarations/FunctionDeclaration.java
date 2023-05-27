@@ -6,18 +6,18 @@
 
 package AST.Declarations;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Declaration;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class FunctionDeclaration extends Declaration {
-	public String name;
-	public List<TypedVar> parameters;
-	public String returnType;
-	public Statement body;
+	public final String name;
+	public final List<TypedVar> parameters;
+	public final String returnType;
+	public final Statement body;
 
 	public FunctionDeclaration(String name, List<TypedVar> parameters, String returnType, Statement body, Entry<Integer,
 																													   Integer> loc) {
@@ -32,4 +32,25 @@ public final class FunctionDeclaration extends Declaration {
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "FunctionDeclaration";
+	}
+
+	@Override
+	public String toString() {
+		String bodyStr = "{" + body.toString() + "}";
+		bodyStr += "@(" + getLine() + ", " + getCharacter() + ")";
+		return "FuncDeclaration{" +
+			   "name=" +
+			   name +
+			   ", parameters=(" +
+			   parameters.stream().map(x -> x.name() + ": " + x.type()).collect(Collectors.joining(", ")) +
+			   ") -> " + returnType + ", " +
+			   "body=" +
+			   bodyStr +
+			   "}@(" + getLine() + ", " + getCharacter() + ")\n";
+	}
+
 }

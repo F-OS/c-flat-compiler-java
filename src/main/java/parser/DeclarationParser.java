@@ -6,22 +6,24 @@
 
 package parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import AST.ASTRoot;
-import AST.Declaration;
-import AST.Expression;
-import AST.Statement;
+import AST.ASTRoot.*;
+import AST.*;
 import AST.Declarations.*;
-import AST.Statements.*;
-import scanner.Token;
-import utils.Entry;
+import AST.Declarations.EnumDeclaration.*;
+import scanner.*;
+import scanner.Token.*;
+import utils.*;
 
-public final class DeclarationParser extends ParserState {
+import java.util.*;
+
+public final class DeclarationParser extends Parser {
 
 	private DeclarationParser(List<Token> tokenStream) {
 		super(tokenStream);
+	}
+
+	private DeclarationParser(ParsingContext parser) {
+		super(parser);
 	}
 
 	/**
@@ -33,11 +35,11 @@ public final class DeclarationParser extends ParserState {
 	 * <p>
 	 * ***Grammar:*** * Expression -> * * Lambda
 	 */
-	public static Entry<Declaration, Integer> parseDeclaration(List<Token> tokenStream) {
-		DeclarationParser parser = new DeclarationParser(tokenStream);
-		Declaration parsed = parser.parseDeclaration();
-		return new Entry<>(parsed, parser.getCurrentPosition());
+	public static Declaration parseDeclaration(ParsingContext cont) {
+		DeclarationParser parser = new DeclarationParser(cont);
+		return parser.parseDeclaration();
 	}
+
 
 	/**
 	 * Parses a declaration.
@@ -52,7 +54,7 @@ public final class DeclarationParser extends ParserState {
 	 * * | [Statement]
 	 */
 	Declaration parseDeclaration() {
-		Declaration retNode = null;
+		Declaration retNode;
 		switch (getCurrentToken().type) {
 			case VAR -> {
 				consumeToken();
@@ -79,7 +81,7 @@ public final class DeclarationParser extends ParserState {
 				retNode = parseStructDeclaration();
 			}
 			default -> {
-				return parseStatement();
+				return StatementParser.parseStatement(context);
 			}
 		}
 		return retNode;
@@ -102,8 +104,8 @@ public final class DeclarationParser extends ParserState {
 
 		String ident = matchIdent("Expected a variable name after 'var'.");
 		String type;
-		if (!curTokenIsType(Token.TokenType.COLON)) {
-			System.out.println("WARNING: Variable not typed at line " + loc.key() + "Type will be "
+		if (!curTokenIsType(TokenType.COLON)) {
+			System.out.println("WARNING: Variable not typed at line " + loc.key() + ". Type will be "
 							   + "inferred based on the variable's use.");
 			type = "!!INFER!!";
 		} else {
@@ -111,16 +113,16 @@ public final class DeclarationParser extends ParserState {
 			type = matchIdent("A colon must be followed by a type identifier.");
 		}
 
-		ASTRoot.TypedVar typedVar = new ASTRoot.TypedVar(ident, type);
+		TypedVar typedVar = new TypedVar(ident, type);
 
-		if (getCurrentToken().type == Token.TokenType.EQUATE) {
+		if (getCurrentToken().type == TokenType.EQUATE) {
 			consumeToken();
-			Expression expr = parseExpression();
-			match(Token.TokenType.EQUATE, "Expected semicolon after definition.");
+			Expression expr = ExpressionParser.parseExpression(context);
+			match(TokenType.SEMICOLON, "Expected semicolon after definition.");
 			return new SimpleVarDeclaration(typedVar, expr, loc);
 		}
 
-		if (getCurrentToken().type == Token.TokenType.SEMICOLON) {
+		if (getCurrentToken().type == TokenType.SEMICOLON) {
 			consumeToken();
 			return new SimpleVarDeclaration(typedVar, null, loc);
 		} else {
@@ -147,15 +149,15 @@ public final class DeclarationParser extends ParserState {
 
 		long arraylen = -1;
 
-		if (getCurrentToken().type == Token.TokenType.LBRACKET) {
+		if (getCurrentToken().type == TokenType.LBRACKET) {
 			consumeToken();
-			arraylen = Integer.parseInt(match(Token.TokenType.INTCONST, "Array lengths must be whole integers.").text);
-			match(Token.TokenType.INTCONST, "Array lengths must end with right brackets.");
+			arraylen = Integer.parseInt(match(TokenType.INTCONST, "Array lengths must be whole integers.").text);
+			match(TokenType.RBRACKET, "Array lengths must end with right brackets.");
 		}
 
 		String type;
-		if (!curTokenIsType(Token.TokenType.COLON)) {
-			System.out.println("WARNING: Variable not typed at line " + loc.key() + "Type will be "
+		if (!curTokenIsType(TokenType.COLON)) {
+			System.out.println("WARNING: Variable not typed at line " + loc.key() + ". Type will be "
 							   + "inferred based on the variable's use.");
 			type = "!!INFER!!";
 		} else {
@@ -164,16 +166,17 @@ public final class DeclarationParser extends ParserState {
 		}
 
 		Declaration decl;
-		if (getCurrentToken().type == Token.TokenType.EQUATE) {
+		if (getCurrentToken().type == TokenType.EQUATE) {
+			consumeToken();
 			List<Expression> initalizers = parseArrayInitalizers();
-			ASTRoot.TypedVar typedVar = new ASTRoot.TypedVar(ident, type);
+			TypedVar typedVar = new TypedVar(ident, type);
 			decl = new ArrayDeclaration(typedVar, arraylen, initalizers, loc);
 		} else {
-			ASTRoot.TypedVar typedVar = new ASTRoot.TypedVar(ident, type);
+			TypedVar typedVar = new TypedVar(ident, type);
 			decl = new ArrayDeclaration(typedVar, arraylen, null, loc);
 		}
 
-		if (getCurrentToken().type == Token.TokenType.SEMICOLON) {
+		if (getCurrentToken().type == TokenType.SEMICOLON) {
 			consumeToken();
 			return decl;
 		} else {
@@ -192,18 +195,18 @@ public final class DeclarationParser extends ParserState {
 	 */
 	private List<Expression> parseArrayInitalizers() {
 		ArrayList<Expression> initalizerList = new ArrayList<>();
+		match(TokenType.LBRACE, "Array initializers must start with braces.");
 		while (true) {
-			consumeToken();
-			initalizerList.add(parseExpression());
-			if (getCurrentToken().type == Token.TokenType.RBRACE) {
-				consumeToken();
+			initalizerList.add(ExpressionParser.parseExpression(context));
+			if (getCurrentToken().type == TokenType.RBRACE) {
 				break;
-			} else if (getCurrentToken().type == Token.TokenType.COMMA) {
+			} else if (getCurrentToken().type == TokenType.COMMA) {
 				consumeToken();
 			} else {
 				throw new RuntimeException("Error: Unexpected token in array initializer list.");
 			}
 		}
+		match(TokenType.RBRACE, "Array initializers must end with braces.");
 		return initalizerList;
 	}
 
@@ -222,32 +225,30 @@ public final class DeclarationParser extends ParserState {
 		Entry<Integer, Integer> loc = getCurrentLocation();
 		String name = matchIdent("Expected an enum name.");
 
-		match(Token.TokenType.LBRACE, "Error: An enum declaration must contain an identifier followed by a series of " +
-									  "mappings enclosed in left braces.");
+		match(TokenType.LBRACE, "Error: An enum declaration must contain an identifier followed by a series of " +
+								"mappings enclosed in left braces.");
 
-		ArrayList<EnumDeclaration.EnumMember> members = new ArrayList<>();
+		ArrayList<EnumMember> members = new ArrayList<>();
 		long enumNumber = 0L;
 
 		while (true) {
-			if (getCurrentToken().type == Token.TokenType.IDENTIFIER) {
-				String paramName = getTokenText();
-				consumeToken();
+			if (getCurrentToken().type == TokenType.IDENTIFIER) {
+				String paramName = matchIdent("Expected an enum member.");
+				if (getCurrentToken().type == TokenType.COLON) {
+					long num = Integer.parseInt(match(TokenType.INTCONST, "Error: Must define an enum entry as " +
+																		  "a number.").text);
 
-				if (getCurrentToken().type == Token.TokenType.COLON) {
-					long num = Integer.parseInt(match(Token.TokenType.INTCONST, "Error: Must define an enum entry as " +
-																				"a number.").text);
-
-					members.add(new EnumDeclaration.EnumMember(paramName, num));
+					members.add(new EnumMember(paramName, num));
 					enumNumber = num;
-				} else if (getCurrentToken().type == Token.TokenType.COMMA) {
+				} else if (getCurrentToken().type == TokenType.COMMA) {
 					consumeToken();
-					members.add(new EnumDeclaration.EnumMember(paramName, enumNumber));
+					members.add(new EnumMember(paramName, enumNumber));
 					enumNumber++;
 				} else {
 					throw new RuntimeException("Error on line " + loc.key() + ": Error in enum parsing. Expected " +
 											   "either an identifier or colon.");
 				}
-			} else if (getCurrentToken().type == Token.TokenType.RBRACE) {
+			} else if (getCurrentToken().type == TokenType.RBRACE) {
 				consumeToken();
 				if (members.isEmpty()) {
 					System.out.println(
@@ -276,7 +277,7 @@ public final class DeclarationParser extends ParserState {
 	private Declaration parseStructDeclaration() {
 		Entry<Integer, Integer> loc = getCurrentLocation();
 		String name = matchIdent("Expected a struct name.");
-		List<Declaration> body = parseDeclarationBlock("struct");
+		List<Declaration> body = parseDeclarationBlock("structs");
 		return new StructDeclaration(name, body, loc);
 	}
 
@@ -298,35 +299,36 @@ public final class DeclarationParser extends ParserState {
 		String name = matchIdent("Expected a class name.");
 		List<String> inheritsFrom = new ArrayList<>();
 
-		if (getCurrentToken().type == Token.TokenType.COLON) {
-			consumeToken();
+		if (getCurrentToken().type != TokenType.COLON) {
+			List<Declaration> body = parseDeclarationBlock("classes");
+			return new ClassDeclaration(name, body, inheritsFrom, loc);
+		}
+		consumeToken();
 
-			if (getCurrentToken().type == Token.TokenType.LPAREN) {
-				while (true) {
-					if (getCurrentToken().type == Token.TokenType.IDENTIFIER) {
-						inheritsFrom.add(getTokenText());
-						consumeToken();
-					} else if (getCurrentToken().type == Token.TokenType.RPAREN) {
-						consumeToken();
-						break;
-					} else if (getCurrentToken().type == Token.TokenType.COMMA) {
-						consumeToken();
-						// Commas are allowed between inherited classes
-					} else {
-						throw new RuntimeException("Error on line " + loc.key() + ": Error in class parsing. Expected" +
-												   " " +
-												   "either a right parenthesis, a comma, or an identifier in " +
-												   "inheritance list." +
-												   ".");
-					}
+		if (getCurrentToken().type == TokenType.LPAREN) {
+			consumeToken();
+			while (true) {
+				if (getCurrentToken().type == TokenType.IDENTIFIER) {
+					inheritsFrom.add(matchIdent("Expected a class to inherit from."));
+				} else if (getCurrentToken().type == TokenType.RPAREN) {
+					consumeToken();
+					break;
+				} else if (getCurrentToken().type == TokenType.COMMA) {
+					consumeToken();
+					// Commas are allowed between inherited classes
+				} else {
+					throw new RuntimeException("Error on line " + loc.key() + ": Error in class parsing. Expected" +
+											   " " +
+											   "either a right parenthesis, a comma, or an identifier in " +
+											   "inheritance list. Got a " + getCurrentToken().type +
+											   ".");
 				}
-			} else {
-				inheritsFrom.add(getTokenText());
-				consumeToken();
 			}
+		} else {
+			inheritsFrom.add(matchIdent("Expected a class to inherit from."));
 		}
 
-		List<Declaration> body = parseDeclarationBlock("class");
+		List<Declaration> body = parseDeclarationBlock("classes");
 		return new ClassDeclaration(name, body, inheritsFrom, loc);
 	}
 
@@ -339,12 +341,12 @@ public final class DeclarationParser extends ParserState {
 	 * * DeclarationList -> "{" (Declarations)* "}"
 	 */
 	private List<Declaration> parseDeclarationBlock(String blockType) {
-		Token loc = match(Token.TokenType.LBRACE, "The body of " + blockType + " must be braced.");
 		ArrayList<Declaration> list = new ArrayList<>();
-		while (!(getCurrentToken().type != Token.TokenType.RBRACE || getCurrentToken().type != Token.TokenType.EOF)) {
+		match(TokenType.LBRACE, "The bodies of " + blockType + " must be braced.");
+		while ((getCurrentToken().type != TokenType.RBRACE && getCurrentToken().type != TokenType.EOF)) {
 			list.add(parseDeclaration());
 		}
-		match(Token.TokenType.RBRACE, "The body of " + blockType + " must be braced.");
+		match(TokenType.RBRACE, "The bodies of " + blockType + " must be braced.");
 		return list;
 	}
 
@@ -367,42 +369,17 @@ public final class DeclarationParser extends ParserState {
 									   "named fun or the parser was unable to synchronize properly. " +
 									   "In either case stop it.");
 		}
-		List<ASTRoot.TypedVar> params = parseParams("function");
+		List<TypedVar> params = parseParams(name);
 		String type;
-		if (!curTokenIsType(Token.TokenType.COLON)) {
-			System.out.println("WARNING: Variable not typed at line " + loc.key() + "Type will be "
-							   + "inferred based on the variable's use.");
-			type = "!!INFER!!";
+		if (!curTokenIsType(TokenType.COLON)) {
+			System.out.println("WARNING: Function return not typed on line " + loc.key() + ". Void assumed.");
+			type = "void";
 		} else {
 			consumeToken();
 			type = matchIdent("A colon must be followed by a type identifier.");
 		}
 		Statement body = parseBlock();
 		return new FunctionDeclaration(name, params, type, body, loc);
-	}
-
-	/**
-	 * Parses a block statement.
-	 *
-	 * @return The parsed [Block] statement.
-	 * <p>
-	 * ***Grammar:***
-	 * * Block ->
-	 * * * "{" (Declaration)* "}"
-	 */
-	private Statement parseBlock() {
-		Token tok = match(Token.TokenType.LBRACE, "Blocks must start with braces.");
-
-		List<Declaration> block = new ArrayList<>(64);
-		while (getCurrentToken().type != Token.TokenType.RBRACE) {
-			block.add(parseDeclaration());
-			if (curTokenIsType(Token.TokenType.EOF)) {
-				throw new RuntimeException("Unterminated block starting at line: " + tok.line);
-			}
-		}
-		match(Token.TokenType.RBRACE, "Blocks must end with braces.");
-
-		return new Block(block, new Entry<>(tok.line, tok.charNum));
 	}
 
 	/**
@@ -418,63 +395,52 @@ public final class DeclarationParser extends ParserState {
 	 * * * TypedIdentifier |
 	 * * * ParameterList "," TypedIdentifier
 	 */
-	private List<ASTRoot.TypedVar> parseParams(String statementType) {
-		match(Token.TokenType.LPAREN, "Error: A function parameter list must be enclosed in parentheses.");
+	private List<TypedVar> parseParams(String func) {
+		match(TokenType.LPAREN, "Error: In " + func + ". The parameter list must be enclosed in parentheses.");
 
-		List<ASTRoot.TypedVar> params = new ArrayList<>(32);
+		List<TypedVar> params = new ArrayList<>(32);
 		boolean expectComma = false;
+		boolean allowEmpty = false;
 		Token curTok;
 		while (true) {
-			if (curTokenIsType(Token.TokenType.IDENTIFIER)) {
+			if (curTokenIsType(TokenType.IDENTIFIER)) {
 				if (expectComma) {
 					curTok = getCurrentToken();
-					System.out.println("WARNING: Expected a comma at identifier " + curTok.text
-									   + " in parameter definition on line " + curTok.line + ", character" +
+					System.out.println("WARNING: Expected a comma at identifier in parameter definition for function " + func + " on line "
+									   + curTok.line + ", character " +
 									   curTok.charNum
-									   + " .");
+									   + ".");
 				}
 				expectComma = true;
-				String name = getTokenText();
-				match(Token.TokenType.COLON, "A parameter definition must contain an identifier followed by a "
-											 + "colon and then a typename.");
+				String name = matchIdent("Expected a parameter.");
+				match(TokenType.COLON, "A parameter definition must contain an identifier followed by a "
+									   + "colon and then a typename.");
 				String type = matchIdent("Expected a typename after colon in function params.");
-				params.add(new ASTRoot.TypedVar(name, type));
-			} else if (curTokenIsType(Token.TokenType.RPAREN)) {
+				params.add(new TypedVar(name, type));
+			} else if (curTokenIsType(TokenType.RPAREN)) {
 				curTok = consumeToken();
 				break;
-			} else if (curTokenIsType(Token.TokenType.COMMA)) {
+			} else if (curTokenIsType(TokenType.COMMA)) {
 				if (!expectComma) {
 					curTok = getCurrentToken();
-					System.out.println("WARNING: Unexpected comma " + curTok.text + " in parameter definition on line "
-									   + curTok.line + ", character" + curTok.charNum + " .");
+					System.out.println("WARNING: Unexpected comma in parameter definition for function " + func + " on line "
+									   + curTok.line + ", character " + curTok.charNum + ".");
 				}
 				expectComma = false;
 				consumeToken();
+			} else if (curTokenIsType(TokenType.NOT)) {
+				consumeToken();
+				allowEmpty = true;
 			} else {
-				matchList(List.of(Token.TokenType.IDENTIFIER, Token.TokenType.RPAREN, Token.TokenType.COMMA),
+				matchList(List.of(TokenType.IDENTIFIER, TokenType.RPAREN, TokenType.COMMA),
 						"Invalid parameter list.");
 			}
 		}
-		if (params.isEmpty()) {
-			System.out.println("WARNING: Empty parameter list " + curTok.text + " in parameter definition on line "
-							   + curTok.line + ", character" + curTok.charNum + " .");
+		if (params.isEmpty() && !allowEmpty) {
+			System.out.println("WARNING: Empty parameter list in parameter definition for function " + func + " on line "
+							   + curTok.line + ", character " + curTok.charNum + ". insert an exclamation mark to allow an empty parameter list." +
+							   "\n\t\"fun " + func + "()\" -> \"fun " + func + "(!)\"");
 		}
 		return params;
-	}
-
-
-	private Statement parseStatement() {
-		Entry<Statement, Integer> statement = StatementParser
-													  .parseStatement(getTokenStream().subList(getCurrentPosition(),
-															  getTokenStream().size()));
-		advanceLocation(statement.value());
-		return statement.key();
-	}
-
-	private Expression parseExpression() {
-		Entry<Expression, Integer> expression = ExpressionParser
-														.parseExpression(getTokenStream().subList(getCurrentPosition(), getTokenStream().size()));
-		advanceLocation(expression.value());
-		return expression.key();
 	}
 }

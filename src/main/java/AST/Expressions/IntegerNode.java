@@ -6,20 +6,31 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class IntegerNode extends Expression {
-	public final long num;
+	public final long value;
 
 	public IntegerNode(long num, Entry<Integer, Integer> loc) {
 		super(loc.key(), loc.value());
-		this.num = num;
+		this.value = num;
 	}
 
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "Integer";
+	}
+
+	@Override
+	public String toString() {
+		return "Integer{" + value + "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

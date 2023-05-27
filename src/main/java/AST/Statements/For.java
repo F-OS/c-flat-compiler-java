@@ -6,10 +6,9 @@
 
 package AST.Statements;
 
-import AST.Declaration;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class For extends Statement {
 	public final Declaration initializer;
@@ -17,7 +16,11 @@ public final class For extends Statement {
 	public final Declaration iteration;
 	public final Statement body;
 
-	public For(Declaration initializer, Declaration conditional, Declaration iteration, Statement body, Entry<Integer, Integer> loc) {
+	public For(
+			Declaration initializer, Declaration conditional, Declaration iteration,
+			Statement body,
+			Entry<Integer, Integer> loc
+	) {
 		super(loc.key(), loc.value());
 		this.initializer = initializer;
 		this.conditional = conditional;
@@ -28,5 +31,20 @@ public final class For extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "For";
+	}
+
+	@Override
+	public String toString() {
+		String initalization = initializer != null ? "initalization=" + initializer : "";
+		String condit = conditional != null ? ", conditional=" + conditional : "";
+		String inc = iteration != null ? ", iteration=" + iteration : "";
+		return "For{" + initalization + condit + inc + ", body={" +
+			   body.toString() +
+			   "}}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

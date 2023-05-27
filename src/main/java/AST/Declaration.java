@@ -6,13 +6,10 @@
 
 package AST;
 
-import visitor.Visitor;
-
 public abstract class Declaration extends ASTRoot {
 	protected Declaration(int line, int character) {
 		super(line, character);
 	}
 
-	@Override
-	public abstract Object accept(Visitor visitor);
+	public abstract String nodeToString();
 }

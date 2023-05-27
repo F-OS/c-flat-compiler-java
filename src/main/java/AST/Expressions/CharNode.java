@@ -6,20 +6,30 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class CharNode extends Expression {
-	public final char char_;
+	public final char value;
 
-	public CharNode(char char_, Entry<Integer, Integer> loc) {
+	public CharNode(char chr, Entry<Integer, Integer> loc) {
 		super(loc.key(), loc.value());
-		this.char_ = char_;
+		this.value = chr;
 	}
 
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String toString() {
+		return "Char{" + value + "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
+	@Override
+	public String nodeToString() {
+		return "CharNode";
 	}
 }

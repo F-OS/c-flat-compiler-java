@@ -6,47 +6,34 @@
 
 package parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import AST.Declaration;
-import AST.Expression;
-import AST.Statement;
+import AST.*;
 import AST.Expressions.*;
 import AST.Expressions.OpEnums.*;
 import AST.Statements.*;
-import scanner.Token;
-import utils.Entry;
+import scanner.*;
+import scanner.Token.*;
+import utils.*;
 
-public final class StatementParser extends ParserState {
-	private StatementParser(List<Token> tokenStream) {
-		super(tokenStream);
+import java.util.*;
+
+public final class StatementParser extends Parser {
+	public StatementParser(ParsingContext cont) {
+		super(cont);
 	}
 
-	public static Entry<Statement, Integer> parseStatement(List<Token> tokenStream) {
-		StatementParser parser = new StatementParser(tokenStream);
-		Statement parsed = parser.parseStatement();
-		return new Entry<>(parsed, parser.getCurrentPosition());
+	public static Statement parseStatement(ParsingContext cont) {
+		StatementParser parser = new StatementParser(cont);
+		return parser.parseStatement();
 	}
 
 	private static boolean isAssignment(Token currentToken) {
-		return currentToken.type == Token.TokenType.EQUATE || currentToken.type == Token.TokenType.ADDASSIGN
-			   || currentToken.type == Token.TokenType.SUBASSIGN || currentToken.type == Token.TokenType.MULASSIGN
-			   || currentToken.type == Token.TokenType.DIVASSIGN || currentToken.type == Token.TokenType.MODASSIGN
-			   || currentToken.type == Token.TokenType.POWASSIGN || currentToken.type == Token.TokenType.ANDASSIGN
-			   || currentToken.type == Token.TokenType.ORASSIGN || currentToken.type == Token.TokenType.RSHIFTASSIGN
-			   || currentToken.type == Token.TokenType.LSHIFTASSIGN || currentToken.type == Token.TokenType.XORASSIGN;
+		return currentToken.type == TokenType.EQUATE || currentToken.type == TokenType.ADDASSIGN
+			   || currentToken.type == TokenType.SUBASSIGN || currentToken.type == TokenType.MULASSIGN
+			   || currentToken.type == TokenType.DIVASSIGN || currentToken.type == TokenType.MODASSIGN
+			   || currentToken.type == TokenType.POWASSIGN || currentToken.type == TokenType.ANDASSIGN
+			   || currentToken.type == TokenType.ORASSIGN || currentToken.type == TokenType.RSHIFTASSIGN
+			   || currentToken.type == TokenType.LSHIFTASSIGN || currentToken.type == TokenType.XORASSIGN;
 	}
-
-	/**
-	 * Checks whether the given operand returns a boolean.
-	 */
-	private static boolean isaBooleanExpr(Object opEnum) {
-		return opEnum == BinaryOps.LessThan || opEnum == BinaryOps.LessEqual || opEnum == BinaryOps.EqualTo
-			   || opEnum == BinaryOps.GreaterEqual || opEnum == BinaryOps.NotEqualTo || opEnum == BinaryOps.GreaterThan
-			   || opEnum == BinaryOps.And || opEnum == BinaryOps.Or || opEnum == UnaryOps.Not;
-	}
-
 	/**
 	 * Parses a statement.
 	 *
@@ -72,7 +59,7 @@ public final class StatementParser extends ParserState {
 	 * * * [Block]
 	 */
 	private Statement parseStatement() {
-		Statement retNode = null;
+		Statement retNode;
 		Entry<Integer, Integer> loc = getCurrentLocation();
 		switch (getCurrentToken().type) {
 			case IF -> {
@@ -106,45 +93,43 @@ public final class StatementParser extends ParserState {
 			case CONTINUE -> {
 				consumeToken();
 				retNode = new Continue(loc);
-				match(Token.TokenType.SEMICOLON, "Statements must end with semicolons.");
+				match(TokenType.SEMICOLON, "Statements must end with semicolons.");
 			}
 			case BREAK -> {
 				consumeToken();
 				retNode = new Break(loc);
-				match(Token.TokenType.SEMICOLON, "Statements must end with semicolons.");
+				match(TokenType.SEMICOLON, "Statements must end with semicolons.");
 			}
 			case RETURN -> {
 				consumeToken();
 				retNode = parseReturn();
-				match(Token.TokenType.SEMICOLON, "Statements must end with semicolons.");
+				match(TokenType.SEMICOLON, "Statements must end with semicolons.");
 			}
 			case GOTO -> {
 				consumeToken();
 				retNode = parseGoto();
-				match(Token.TokenType.SEMICOLON, "Statements must end with semicolons.");
+				match(TokenType.SEMICOLON, "Statements must end with semicolons.");
 			}
 			case THROW -> {
 				consumeToken();
 				retNode = parseThrow();
-				match(Token.TokenType.SEMICOLON, "Statements must end with semicolons.");
+				match(TokenType.SEMICOLON, "Statements must end with semicolons.");
 			}
 			case IDENTIFIER -> {
-				if (getNextToken().type == Token.TokenType.COLON) {
+				if (nextTokenIsType(TokenType.COLON)) {
 					retNode = parseLabel();
 				} else {
-					retNode = parseExpression();
+					retNode = ExpressionParser.parseExpression(context);
 					if (isAssignment(getCurrentToken())) {
 						retNode = parseAssignment((Expression) retNode);
 					}
-					match(Token.TokenType.SEMICOLON, "Statements must end with semicolons.");
+					match(TokenType.SEMICOLON, "Statements must end with semicolons.");
 				}
 			}
-			case LBRACE -> {
-				retNode = parseBlock();
-			}
+			case LBRACE -> retNode = parseBlock();
 			default -> {
-				retNode = parseExpression();
-				match(Token.TokenType.SEMICOLON, "Statements must end with semicolons.");
+				retNode = ExpressionParser.parseExpression(context);
+				match(TokenType.SEMICOLON, "Statements must end with semicolons.");
 			}
 		}
 		return retNode;
@@ -161,11 +146,11 @@ public final class StatementParser extends ParserState {
 	 * * * "if" "(" Expression ")" Statement "else" Statement
 	 */
 	private Statement parseIf() {
-		Token start = match(Token.TokenType.LPAREN,
+		Token start = match(TokenType.LPAREN,
 				"Each if statement must contain a conditional enclosed in " + "parentheses.");
 		Expression conditional = getConditional("if");
 
-		match(Token.TokenType.RPAREN, "Each if statement must contain a conditional enclosed in parentheses.");
+		match(TokenType.RPAREN, "Each if statement must contain a conditional enclosed in parentheses.");
 
 		Statement consequent = parseStatement();
 
@@ -178,7 +163,7 @@ public final class StatementParser extends ParserState {
 		}
 
 		Statement alternate = null;
-		if (curTokenIsType(Token.TokenType.ELSE)) {
+		if (curTokenIsType(TokenType.ELSE)) {
 			consumeToken();
 			alternate = parseStatement();
 			if (!(alternate instanceof Block)) {
@@ -211,31 +196,32 @@ public final class StatementParser extends ParserState {
 	 * * * e | Declaration | ";"
 	 */
 	private Statement parseForLoop() {
-		Token start = match(Token.TokenType.LPAREN, "Opening parenthesis expected after 'for'.");
+		Token start = match(TokenType.LPAREN, "Opening parenthesis expected after 'for'.");
 		Declaration initializer = null;
 		Expression conditional = null;
 		Declaration iteration = null;
 
-		if (!curTokenIsType(Token.TokenType.RPAREN)) {
-			if (curTokenIsType(Token.TokenType.SEMICOLON)) {
+		if (!curTokenIsType(TokenType.RPAREN)) {
+			if (curTokenIsType(TokenType.SEMICOLON)) {
 				consumeToken();
 			} else {
-				initializer = parseDeclaration();
+				initializer = DeclarationParser.parseDeclaration(context);
 			}
 		}
-		if (!curTokenIsType(Token.TokenType.RPAREN)) {
-			if (curTokenIsType(Token.TokenType.SEMICOLON)) {
+		if (!curTokenIsType(TokenType.RPAREN)) {
+			if (curTokenIsType(TokenType.SEMICOLON)) {
 				consumeToken();
 			} else {
 				conditional = getConditional("for");
-				match(Token.TokenType.SEMICOLON, "For loop conditionals must end with a semicolon.");
 			}
 		}
-		if (!curTokenIsType(Token.TokenType.RPAREN)) {
+		if (!curTokenIsType(TokenType.RPAREN)) {
+			match(TokenType.SEMICOLON, "For loop conditionals must end with a semicolon.");
+			context.setSemicolonExempt();
 			iteration = parseStatement();
 		}
 
-		match(Token.TokenType.RPAREN, "Error: Closing parenthesis expected after 'for'.");
+		match(TokenType.RPAREN, "Error: Closing parenthesis expected after 'for'.");
 
 		Statement block = parseStatement();
 		if (!(block instanceof Block)) {
@@ -257,20 +243,20 @@ public final class StatementParser extends ParserState {
 	 * * * "for" "(" Identifier ":" Identifier ")" Block
 	 */
 	private Statement parseForEachLoop() {
-		Token start = match(Token.TokenType.LPAREN, "Opening parenthesis expected after 'foreach'.");
-		String itervar = match(Token.TokenType.IDENTIFIER, """
+		Token start = match(TokenType.LPAREN, "Opening parenthesis expected after 'foreach'.");
+		String itervar = match(TokenType.IDENTIFIER, """
 				Iteration variable identifier expected after the opening \
 				parenthesis of a \
 				foreach \
 				expression.""").text;
-		match(Token.TokenType.COLON,
+		match(TokenType.COLON,
 				"Colon expected after the iteration variable identifier of a 'foreach' " + "expression.");
-		String collectionvar = match(Token.TokenType.IDENTIFIER, """
+		String collectionvar = match(TokenType.IDENTIFIER, """
 				Collection variable identifier expected after the \
 				colon of a \
 				foreach \
 				expression.""").text;
-		match(Token.TokenType.RPAREN, "Closing parenthesis expected after 'foreach' control structure.");
+		match(TokenType.RPAREN, "Closing parenthesis expected after 'foreach' control structure.");
 		Statement block = parseStatement();
 		if (!(block instanceof Block)) {
 			System.out.println(
@@ -291,9 +277,9 @@ public final class StatementParser extends ParserState {
 	 * * * "while" "(" Expression ")" Block
 	 */
 	private Statement parseWhile() {
-		Token start = match(Token.TokenType.LPAREN, "Opening parenthesis expected after 'while'.");
+		Token start = match(TokenType.LPAREN, "Opening parenthesis expected after 'while'.");
 		Expression conditional = getConditional("while");
-		match(Token.TokenType.RPAREN, "Closing parenthesis expected after 'while' control structure.");
+		match(TokenType.RPAREN, "Closing parenthesis expected after 'while' control structure.");
 		Statement block = parseStatement();
 		if (!(block instanceof Block)) {
 			System.out.println(
@@ -316,16 +302,17 @@ public final class StatementParser extends ParserState {
 	private Statement parseDoWhile() {
 		Token start = getCurrentToken();
 		Statement block = parseStatement();
-		match(Token.TokenType.WHILE, "While expected after do block.");
-		match(Token.TokenType.LPAREN, "Opening parenthesis expected after 'do' block.");
+		match(TokenType.WHILE, "While expected after do block.");
+		match(TokenType.LPAREN, "Opening parenthesis expected after 'do' block.");
 		Expression conditional = getConditional("do-while");
-		match(Token.TokenType.RPAREN, "Closing parenthesis expected after 'do' control structure.");
+		match(TokenType.RPAREN, "Closing parenthesis expected after 'do' control structure.");
 		if (!(block instanceof Block)) {
 			System.out.println("WARNING: Do-While loop body on line " + getCurrentLocation().key()
 							   + " is not enclosed in braces.\n"
 							   + " Please be aware that this language is not whitespace aware and statements following"
 							   + " the first will not be associated with the loop.");
 		}
+		match(TokenType.SEMICOLON, "Semicolon expected after 'do-while' conditional.");
 		return new DoWhile(conditional, block, new Entry<>(start.line, start.charNum));
 	}
 
@@ -334,24 +321,8 @@ public final class StatementParser extends ParserState {
 	 * typechecking but it's probably good to catch these things early.
 	 */
 	private Expression getConditional(String type) {
-		Expression conditional = parseExpression();
-		if (conditional instanceof Op op) {
-			Object opEnum = op.getOp();
-			// This expression will not enter the kingdom of heaven.
-			if (!isaBooleanExpr(opEnum)) {
-				throw new RuntimeException("ERROR: Bad conditional. " + op.getOp().toString() + " is not a boolean in "
-										   + type + " statement on line " + op.getLine() + ", character" +
-										   op.getCharacter() + " .");
-			}
-		} else if (conditional instanceof Bool bool) {
-			System.out.println("WARNING: Conditional on line " + getCurrentLocation().key() + " always evaluates to "
-							   + (bool.bool ? "true" : "false"));
-		} else {
-			throw new RuntimeException("ERROR: Bad conditional. " + conditional.toString()
-									   + " is not a binary conditional in " + type + " statement on line " +
-									   conditional.getLine()
-									   + ", character" + conditional.getCharacter() + " .");
-		}
+		Expression conditional = ExpressionParser.parseExpression(context);
+		conditional.assertIsConditional(type);
 		return conditional;
 	}
 
@@ -370,27 +341,26 @@ public final class StatementParser extends ParserState {
 	 * * * "default" ":" Block
 	 */
 	private Statement parseSwitch() {
-		Token start = match(Token.TokenType.LPAREN,
+		Token start = match(TokenType.LPAREN,
 				"Error: Switch statements must be followed by the expression to switch on.");
 
-		Expression conditional = parseExpression();
+		Expression conditional = ExpressionParser.parseExpression(context);
 
-		match(Token.TokenType.RPAREN, "Error: Unclosed expression in switch block.");
+		match(TokenType.RPAREN, "Error: Unclosed expression in switch block.");
 
-		match(Token.TokenType.LBRACE, "Error: Switch statements must be followed by a switch block.");
+		match(TokenType.LBRACE, "Error: Switch statements must be followed by a switch block.");
 
 		List<Entry<Expression, Statement>> cases = new ArrayList<>(32);
-		while (!curTokenIsType(Token.TokenType.RBRACE)) {
+		while (!curTokenIsType(TokenType.RBRACE)) {
 			Expression exp;
-			Statement block;
-			if ("default".equals(getTokenText())) {
+			if (curTokenIsType(TokenType.DEFAULT)) {
 				consumeToken();
-				match(Token.TokenType.COLON, "Error: Default expression must be followed by a colon.");
+				match(TokenType.COLON, "Error: Default expression must be followed by a colon.");
 				exp = new Bool(true, new Entry<>(start.line, start.charNum));
-			} else if ("case".equals(getTokenText())) {
+			} else if (curTokenIsType(TokenType.CASE)) {
 				consumeToken();
-				Expression primary = parseExpression();
-				match(Token.TokenType.COLON,
+				Expression primary = ExpressionParser.parseExpression(context);
+				match(TokenType.COLON,
 						"Error on line " + start.line + ": Case expression must be followed by a" + " colon.");
 				// You might wonder why variable access is in here.
 				// During expression parsing, any identifiers that can't be read as a function
@@ -411,16 +381,16 @@ public final class StatementParser extends ParserState {
 				throw new RuntimeException("Invalid identifier provided to switch case on line " + start.line + ". "
 										   + "Switch accepts default:'s and case [primitive]:'s only.");
 			}
-			block = parseStatement();
+			Statement block = parseStatement();
 
 			cases.add(new Entry<>(exp, block));
-			if (curTokenIsType(Token.TokenType.SEMICOLON) || curTokenIsType(Token.TokenType.EOF)) {
+			if (curTokenIsType(TokenType.SEMICOLON) || curTokenIsType(TokenType.EOF)) {
 				throw new RuntimeException("Error: Unterminated switch block on line " + start.line + ". Did you forget"
 										   + " a closing brace?");
 			}
 		}
 
-		match(Token.TokenType.RBRACE, "Error on line " + start.line + ": Switch blocks end with right braces.");
+		match(TokenType.RBRACE, "Error on line " + start.line + ": Switch blocks end with right braces.");
 
 		return new Switch(conditional, cases, new Entry<>(start.line, start.charNum));
 	}
@@ -437,39 +407,38 @@ public final class StatementParser extends ParserState {
 	private Statement parseAssignment(Expression lhs) {
 		Token tok = getCurrentToken();
 		Entry<Integer, Integer> loc = new Entry<>(tok.line, tok.charNum);
-		Token.TokenType type = tok.type;
-		if (type != Token.TokenType.EQUATE) {
-			BinaryOps binaryOp;
-			if (type == Token.TokenType.ADDASSIGN) {
-				binaryOp = BinaryOps.Add;
-			} else if (type == Token.TokenType.SUBASSIGN) {
-				binaryOp = BinaryOps.Sub;
-			} else if (type == Token.TokenType.MULASSIGN) {
-				binaryOp = BinaryOps.Mul;
-			} else if (type == Token.TokenType.DIVASSIGN) {
-				binaryOp = BinaryOps.Div;
-			} else if (type == Token.TokenType.MODASSIGN) {
-				binaryOp = BinaryOps.Mod;
-			} else if (type == Token.TokenType.POWASSIGN) {
-				binaryOp = BinaryOps.Pow;
-			} else if (type == Token.TokenType.ANDASSIGN) {
-				binaryOp = BinaryOps.Bitwise_And;
-			} else if (type == Token.TokenType.ORASSIGN) {
-				binaryOp = BinaryOps.Bitwise_Or;
-			} else if (type == Token.TokenType.XORASSIGN) {
-				binaryOp = BinaryOps.Bitwise_Xor;
-			} else if (type == Token.TokenType.LSHIFTASSIGN) {
-				binaryOp = BinaryOps.Bitwise_LS;
-			} else if (type == Token.TokenType.RSHIFTASSIGN) {
-				binaryOp = BinaryOps.Bitwise_RS;
-			} else {
-				throw new RuntimeException("Error on line " + tok.line + ": Malformed assignment.");
-			}
+		TokenType type = tok.type;
+		BinaryOps binaryOp;
+		if (type == TokenType.EQUATE) {
 			consumeToken();
-			return new Assignment(lhs, new BinaryOp(lhs, binaryOp, parseExpression(), loc), loc);
+			return new Assignment(lhs, ExpressionParser.parseExpression(context), loc);
+		} else if (type == TokenType.ADDASSIGN) {
+			binaryOp = BinaryOps.Add;
+		} else if (type == TokenType.SUBASSIGN) {
+			binaryOp = BinaryOps.Sub;
+		} else if (type == TokenType.MULASSIGN) {
+			binaryOp = BinaryOps.Mul;
+		} else if (type == TokenType.DIVASSIGN) {
+			binaryOp = BinaryOps.Div;
+		} else if (type == TokenType.MODASSIGN) {
+			binaryOp = BinaryOps.Mod;
+		} else if (type == TokenType.POWASSIGN) {
+			binaryOp = BinaryOps.Pow;
+		} else if (type == TokenType.ANDASSIGN) {
+			binaryOp = BinaryOps.Bitwise_And;
+		} else if (type == TokenType.ORASSIGN) {
+			binaryOp = BinaryOps.Bitwise_Or;
+		} else if (type == TokenType.XORASSIGN) {
+			binaryOp = BinaryOps.Bitwise_Xor;
+		} else if (type == TokenType.LSHIFTASSIGN) {
+			binaryOp = BinaryOps.Bitwise_LS;
+		} else if (type == TokenType.RSHIFTASSIGN) {
+			binaryOp = BinaryOps.Bitwise_RS;
+		} else {
+			throw new RuntimeException("Error on line " + tok.line + ": Malformed assignment.");
 		}
 		consumeToken();
-		return new Assignment(lhs, parseExpression(), loc);
+		return new Assignment(lhs, new BinaryOp(lhs, binaryOp, ExpressionParser.parseExpression(context), loc), loc);
 	}
 
 	/**
@@ -482,8 +451,8 @@ public final class StatementParser extends ParserState {
 	 * * * Identifier ":"
 	 */
 	private Statement parseLabel() {
-		String label = getTokenText();
-		Token tok = getNextToken();
+		String label = matchIdent("Expected a label.");
+		Token tok = consumeToken();
 		return new Label(label, new Entry<>(tok.line, tok.charNum));
 	}
 
@@ -497,11 +466,11 @@ public final class StatementParser extends ParserState {
 	 * * * "return" [ ExpressionStatement ] ";"
 	 */
 	private Statement parseReturn() {
-		Token tok = getNextToken();
-		if (tok.type == Token.TokenType.SEMICOLON) {
+		Token tok = getCurrentToken();
+		if (tok.type == TokenType.SEMICOLON) {
 			return new Return(null, new Entry<>(tok.line, tok.charNum));
 		}
-		return new Return(parseExpression(), new Entry<>(tok.line, tok.charNum));
+		return new Return(ExpressionParser.parseExpression(context), new Entry<>(tok.line, tok.charNum));
 	}
 
 	/**
@@ -538,17 +507,16 @@ public final class StatementParser extends ParserState {
 		Token start = getCurrentToken();
 		Statement block = parseBlock();
 
-		match(Token.TokenType.CATCH, "Try block must be followed by catch statement and block.");
+		match(TokenType.CATCH, "Try block must be followed by catch statement and block.");
 
-		match(Token.TokenType.LPAREN, "'catch' must be followed by an exception to catch.");
+		match(TokenType.LPAREN, "'catch' must be followed by an exception to catch.");
 
 		String catches = matchIdent("""
 				The opening parenthesis of a catch block must be followed by an exception \
 				identifier.\
 				.""");
-		consumeToken();
 		String catchesAs;
-		if (!curTokenIsType(Token.TokenType.COLON)) {
+		if (!curTokenIsType(TokenType.COLON)) {
 			System.out.println("WARNING: Exception not typed at line " + getCurrentLocation().key() + "Type will be "
 							   + "inferred based on the first thrown exception in the try block.");
 			catchesAs = "!!INFER!!";
@@ -556,7 +524,7 @@ public final class StatementParser extends ParserState {
 			consumeToken();
 			catchesAs = matchIdent("A colon must be followed by a type identifier.");
 		}
-		match(Token.TokenType.RPAREN, "Exception catch statements must be followed with a right parenthesis.");
+		match(TokenType.RPAREN, "Exception catch statements must be followed with a right parenthesis.");
 		Statement catchBlock = parseBlock();
 
 		return new Try(block, catches, catchesAs, catchBlock, new Entry<>(start.line, start.charNum));
@@ -581,62 +549,24 @@ public final class StatementParser extends ParserState {
 	private Statement parseThrow() {
 		String throws_ = matchIdent("An exception to throw must come after a throw statement.");
 
-		Token tok = match(Token.TokenType.LPAREN, "Exceptions must have parameter lists enclosed in parenthesis.");
+		Token tok = match(TokenType.LPAREN, "Exceptions must have parameter lists enclosed in parenthesis.");
 
 		List<Expression> params = new ArrayList<>(32);
 
 		while (true) {
-			if (curTokenIsType(Token.TokenType.RPAREN)) {
+			if (curTokenIsType(TokenType.RPAREN)) {
 				consumeToken();
 				break;
 			}
-			if (curTokenIsType(Token.TokenType.COMMA)) {
+			if (curTokenIsType(TokenType.COMMA)) {
 				consumeToken();
-			} else if (curTokenIsType(Token.TokenType.EOF) || curTokenIsType(Token.TokenType.SEMICOLON)) {
+			} else if (curTokenIsType(TokenType.EOF) || curTokenIsType(TokenType.SEMICOLON)) {
 				throw new RuntimeException("Error on line " + tok.line + ": Invalid exception. Parameter list is not"
 										   + " " + "terminated.");
 			} else {
-				params.add(parseExpression());
+				params.add(ExpressionParser.parseExpression(context));
 			}
 		}
 		return new Throw(throws_, params, new Entry<>(tok.line, tok.charNum));
-	}
-
-	/**
-	 * Parses a block statement.
-	 *
-	 * @return The parsed [Block] statement.
-	 * <p>
-	 * ***Grammar:***
-	 * * Block ->
-	 * * * "{" (Declaration)* "}"
-	 */
-	private Statement parseBlock() {
-		Token tok = match(Token.TokenType.LBRACE, "Blocks must start with braces.");
-
-		List<Declaration> block = new ArrayList<>(64);
-		while (getCurrentToken().type != Token.TokenType.RBRACE) {
-			block.add(parseDeclaration());
-			if (curTokenIsType(Token.TokenType.EOF)) {
-				throw new RuntimeException("Unterminated block starting at line: " + tok.line);
-			}
-		}
-		match(Token.TokenType.RBRACE, "Blocks must end with braces.");
-
-		return new Block(block, new Entry<>(tok.line, tok.charNum));
-	}
-
-	private Declaration parseDeclaration() {
-		Entry<Declaration, Integer> declaration = DeclarationParser
-														  .parseDeclaration(getTokenStream().subList(getCurrentPosition(), getTokenStream().size()));
-		advanceLocation(declaration.value());
-		return declaration.key();
-	}
-
-	private Expression parseExpression() {
-		Entry<Expression, Integer> expression = ExpressionParser
-														.parseExpression(getTokenStream().subList(getCurrentPosition(), getTokenStream().size()));
-		advanceLocation(expression.value());
-		return expression.key();
 	}
 }

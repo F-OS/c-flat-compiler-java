@@ -6,10 +6,9 @@
 
 package AST.Statements;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class While extends Statement {
 	public final Expression conditional;
@@ -24,5 +23,15 @@ public final class While extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "While";
+	}
+
+	@Override
+	public String toString() {
+		return "While{conditional=" + conditional + ", body=" + body + "}" + "@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

@@ -6,14 +6,13 @@
 
 package scanner;
 
-import static scanner.Token.TokenType.*;
-import static scanner.Token.*;
+import scanner.Token.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.Map.*;
+import java.util.regex.*;
+
+import static scanner.Token.TokenType.*;
 
 /*
  * This refactored tokenizer is an adaptation of:
@@ -25,9 +24,9 @@ public final class Tokenizer {
 	private static final Pattern GET_INTEGER = Pattern.compile("^\\b(0x[0-9a-fA-F]+|\\d+)\\b");
 	private static final Pattern GET_DECIMAL = Pattern.compile("^\\b(0x[0-9a-fA-F]+|\\d+)\\.(0x[0-9a-fA-F]+|\\d+)\\b");
 	private static final Pattern GET_IDENTIFIER = Pattern.compile("[a-zA-Z_]\\w*");
-	private static final LinkedHashMap<String, Token.TokenType> keywords = new LinkedHashMap<>();
+	private static final LinkedHashMap<String, TokenType> keywords = new LinkedHashMap<>();
 
-	private static final LinkedHashMap<String, Token.TokenType> primitives = new LinkedHashMap<>();
+	private static final LinkedHashMap<String, TokenType> primitives = new LinkedHashMap<>();
 
 	static {
 		keywords.put("if", IF);
@@ -52,6 +51,9 @@ public final class Tokenizer {
 		keywords.put("struct", STRUCT);
 		keywords.put("true", TRUE);
 		keywords.put("false", FALSE);
+		keywords.put("lambda", LAMBDA);
+		keywords.put("default", DEFAULT);
+		keywords.put("case", CASE);
 		primitives.put("<<=", LSHIFTASSIGN);
 		primitives.put(">>=", RSHIFTASSIGN);
 		primitives.put("**=", POWASSIGN);
@@ -114,21 +116,10 @@ public final class Tokenizer {
 		col = 1;
 	}
 
-	public static ArrayList<Token> tokenize(String input) {
+	public static List<Token> tokenize(String input) {
 		Tokenizer tokenizer = new Tokenizer(input);
 		tokenizer.tokenize();
 		return tokenizer.result;
-	}
-
-	private boolean isPrimitive() {
-		for (Map.Entry<String, Token.TokenType> entry : primitives.entrySet()) {
-			String key = entry.getKey();
-			if (tryToken(key, primitives.get(key))) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	private void tokenize() {
@@ -144,9 +135,11 @@ public final class Tokenizer {
 					}
 				} else if (isIdent()) {
 					Matcher idt = GET_IDENTIFIER.matcher(input);
-					idt.find();
+					if (!idt.find()) {
+						error("Invalid identifier.");
+					}
 					String out = idt.group(0);
-					Token.TokenType type = keywords.getOrDefault(out, IDENTIFIER);
+					TokenType type = keywords.getOrDefault(out, IDENTIFIER);
 					consumeInput(out.length());
 					result.add(new Token(type, out, line, col));
 				} else if (isCharLiteral()) {
@@ -187,12 +180,14 @@ public final class Tokenizer {
 		skipWhitespace();
 	}
 
-	private boolean tryToken(String expected, Token.TokenType tokenType) {
-		if (input.startsWith(expected)) {
-			result.add(new Token(tokenType, expected, line, col));
-			consumeInput(expected.length());
-			return true;
+	private boolean isPrimitive() {
+		for (Entry<String, TokenType> entry : primitives.entrySet()) {
+			String key = entry.getKey();
+			if (tryToken(key, primitives.get(key))) {
+				return true;
+			}
 		}
+
 		return false;
 	}
 
@@ -204,18 +199,20 @@ public final class Tokenizer {
 		return IS_FLOATING.matcher(input).find();
 	}
 
-	private boolean tryRegex(Pattern p, Token.TokenType ty) {
+	private void tryRegex(Pattern p, TokenType ty) {
 		Matcher m = p.matcher(input);
 		if (m.lookingAt()) {
 			result.add(new Token(ty, m.group(), line, col));
 			consumeInput(m.end());
-			return true;
 		}
-		return false;
 	}
 
 	private boolean isIdent() {
 		return Character.isAlphabetic(input.charAt(0)) || input.charAt(0) == '_';
+	}
+
+	private void error(String message) {
+		System.out.println("ERROR - Tokenizer: At line: " + line + ", character: " + col + ", " + message);
 	}
 
 	private void consumeInput(int amount) {
@@ -286,8 +283,13 @@ public final class Tokenizer {
 		return stringLiteral.toString();
 	}
 
-	private void error(String message) {
-		System.out.println("ERROR - Tokenizer: At line: " + line + ", character: " + col + ", " + message);
+	private boolean tryToken(String expected, TokenType tokenType) {
+		if (input.startsWith(expected)) {
+			result.add(new Token(tokenType, expected, line, col));
+			consumeInput(expected.length());
+			return true;
+		}
+		return false;
 	}
 
 }

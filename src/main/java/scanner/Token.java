@@ -6,7 +6,7 @@
 
 package scanner;
 
-import java.util.Objects;
+import java.util.*;
 
 public class Token {
 	public enum TokenType {
@@ -19,7 +19,9 @@ public class Token {
 		DOT, EQUATE, COMMA, SEMICOLON,
 		LBRACE, RBRACE, LBRACKET, RBRACKET, LPAREN, RPAREN,
 		QMARK, COLON,
-		IF, ELSE, FOR, FOREACH, WHILE, DO, SWITCH, TRY, CONTINUE, BREAK, RETURN, GOTO, THROW, VAR, ARRAY, ENUM, CLASS, STRUCT, FUN, CATCH,
+		IF, ELSE, FOR, FOREACH, WHILE, DO, TRY, CONTINUE, BREAK, RETURN, GOTO, THROW, CATCH, LAMBDA,
+		SWITCH, CASE, DEFAULT,
+		VAR, ARRAY, ENUM, CLASS, STRUCT, FUN,
 		TRUE, FALSE,
 		UNIMPLEMENTED, EOF
 	}
@@ -58,12 +60,10 @@ public class Token {
 
 	@Override
 	public String toString() {
-		switch (type) {
-			case INTCONST, FLOATCONST, STRINGLIT, CHARLIT, IDENTIFIER:
-				return type + "(" + text + ")@" + line + ":" + charNum;
-			default:
-				return type + "@" + line + ":" + charNum;
-		}
+		return switch (type) {
+			case INTCONST, FLOATCONST, STRINGLIT, CHARLIT, IDENTIFIER -> type + "(" + text + ")@" + line + ":" + charNum;
+			default -> type + "@" + line + ":" + charNum;
+		};
 	}
 
 }

@@ -24,7 +24,7 @@ class car: vehicle {
 
 class truck: (car, vehicle)
 {
-    fun vroom_vroom(): void
+    fun vroom_vroom(!): void
     {
         print("Car go vroom vroom");
     }
@@ -38,7 +38,7 @@ enum letters {
     E,
 }
 
-fun main(): void
+fun main(!): void
 {
     // This is a comment test
     var x: Int = 50; // This is an EOL comment test
@@ -164,7 +164,7 @@ fun main(): void
     }
     if(x == 3 || y++ > 48)
     {
-        var a: bool = !(x != 3)
+        var a: bool = !(x != 3);
         var b: int = x - 2;
         b = b / 2;
         return x + 1 | 2 + 3 ^ 4 & 5 | 4;

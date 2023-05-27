@@ -6,20 +6,37 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Bool extends Expression {
-	public final boolean bool;
+	public final boolean value;
 
 	public Bool(boolean bool, Entry<Integer, Integer> loc) {
 		super(loc.key(), loc.value());
-		this.bool = bool;
+		this.value = bool;
 	}
 
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "Bool";
+	}
+
+	@Override
+	public String toString() {
+		return "BoolNode{" + (value ? "true" : "false") +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
+	@Override
+	public void assertIsConditional(String type) {
+		System.out.println("WARNING: Conditional on line " + getLine() + " in statement " + type + " always evaluates to "
+						   + (value ? "true" : "false"));
 	}
 }

@@ -6,23 +6,26 @@
 
 package parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import AST.ASTRoot;
-import AST.Expression;
-import AST.Statement;
+import AST.ASTRoot.*;
+import AST.*;
 import AST.Expressions.*;
-import AST.Expressions.OpEnums.BinaryOps;
-import AST.Expressions.OpEnums.UnaryOps;
-import scanner.Token;
-import utils.Entry;
+import AST.Expressions.OpEnums.*;
+import scanner.*;
+import scanner.Token.*;
+import utils.*;
 
-public final class ExpressionParser extends ParserState {
+import java.util.*;
+
+public final class ExpressionParser extends Parser {
 
 	private ExpressionParser(List<Token> tokenStream) {
 		super(tokenStream);
 	}
+
+	public ExpressionParser(ParsingContext context) {
+		super(context);
+	}
+
 
 	/**
 	 * The entry point of the recursive descent parser. Starts parsing of the
@@ -35,11 +38,11 @@ public final class ExpressionParser extends ParserState {
 	 * * Expression ->
 	 * * * Lambda
 	 */
-	public static Entry<Expression, Integer> parseExpression(List<Token> tokenStream) {
-		ExpressionParser parser = new ExpressionParser(tokenStream);
-		Expression parsed = parser.parseExpression();
-		return new Entry<>(parsed, parser.getCurrentPosition());
+	public static Expression parseExpression(ParsingContext context) {
+		ExpressionParser parser = new ExpressionParser(context);
+		return parser.parseExpression();
 	}
+
 
 	public Expression parseExpression() {
 		return parseLambda();
@@ -60,12 +63,15 @@ public final class ExpressionParser extends ParserState {
 	 * * * Parameters ":" ReturnType Block
 	 */
 	private Expression parseLambda() {
-		if (isIdentifier() && "lambda".equals(getTokenText())) {
+		if (curTokenIsType(TokenType.LAMBDA)) {
 			consumeToken();
-			List<ASTRoot.TypedVar> params = parseLambdaParams();
-			match(Token.TokenType.COLON, "Lambdas require a colon and a return type.");
+			List<TypedVar> params = parseLambdaParams();
+			match(TokenType.COLON, "Lambdas require a colon and a return type.");
 			String type = matchIdent("Expected an identifier for the lambda's return type.");
-			return new Lambda(params, parseStatement(), type, getCurrentLocation());
+			Statement stmt = StatementParser.parseStatement(context);
+			Lambda lambda = new Lambda(params, stmt, type, getCurrentLocation());
+			context.setSemicolonExempt();
+			return lambda;
 		}
 		return parseTernary();
 	}
@@ -83,13 +89,13 @@ public final class ExpressionParser extends ParserState {
 	 * * * TypedIdentifier |
 	 * * * ParameterList "," TypedIdentifier
 	 */
-	private List<ASTRoot.TypedVar> parseLambdaParams() {
-		match(Token.TokenType.LPAREN, "The parameters of a lambda expression must start with a left parenthesis.");
-		List<ASTRoot.TypedVar> params = new ArrayList<>(32);
+	private List<TypedVar> parseLambdaParams() {
+		match(TokenType.LPAREN, "The parameters of a lambda expression must start with a left parenthesis.");
+		List<TypedVar> params = new ArrayList<>(32);
 		boolean expectComma = false;
 		Token curTok;
 		while (true) {
-			if (curTokenIsType(Token.TokenType.IDENTIFIER)) {
+			if (curTokenIsType(TokenType.IDENTIFIER)) {
 				if (expectComma) {
 					curTok = getCurrentToken();
 					System.out.println("WARNING: Expected a comma at identifier " + curTok.text
@@ -98,15 +104,15 @@ public final class ExpressionParser extends ParserState {
 									   + " .");
 				}
 				expectComma = true;
-				String name = getTokenText();
-				match(Token.TokenType.COLON, "A parameter definition must contain an identifier followed by a "
-											 + "colon and then a typename.");
+				String name = consumeToken().text;
+				match(TokenType.COLON, "A parameter definition must contain an identifier followed by a "
+									   + "colon and then a typename.");
 				String type = matchIdent("Expected a typename after lambda params.");
-				params.add(new ASTRoot.TypedVar(name, type));
-			} else if (curTokenIsType(Token.TokenType.RPAREN)) {
+				params.add(new TypedVar(name, type));
+			} else if (curTokenIsType(TokenType.RPAREN)) {
 				curTok = consumeToken();
 				break;
-			} else if (curTokenIsType(Token.TokenType.COMMA)) {
+			} else if (curTokenIsType(TokenType.COMMA)) {
 				if (!expectComma) {
 					curTok = getCurrentToken();
 					System.out.println("WARNING: Unexpected comma " + curTok.text + " in parameter definition on line "
@@ -115,7 +121,7 @@ public final class ExpressionParser extends ParserState {
 				expectComma = false;
 				consumeToken();
 			} else {
-				matchList(List.of(Token.TokenType.IDENTIFIER, Token.TokenType.RPAREN, Token.TokenType.COMMA),
+				matchList(List.of(TokenType.IDENTIFIER, TokenType.RPAREN, TokenType.COMMA),
 						"Invalid parameter list.");
 			}
 		}
@@ -141,12 +147,12 @@ public final class ExpressionParser extends ParserState {
 	private Expression parseTernary() {
 		Entry<Integer, Integer> loc = getCurrentLocation();
 		Expression lhs = parseBinaryOpExpression(0);
-		if (!curTokenIsType(Token.TokenType.QMARK)) {
+		if (!curTokenIsType(TokenType.QMARK)) {
 			return lhs;
 		}
 		consumeToken();
 		Expression consequent = parseBinaryOpExpression(0);
-		match(Token.TokenType.COLON, "Ternaries require alternate expressions of the form pred ? cons : alt");
+		match(TokenType.COLON, "Ternaries require alternate expressions of the form pred ? cons : alt");
 		Expression alternate = parseBinaryOpExpression(0);
 		return new Ternary(lhs, consequent, alternate, loc);
 	}
@@ -166,7 +172,7 @@ public final class ExpressionParser extends ParserState {
 		while (OpPrecTable.inTableAt(precedence, getCurrentToken())) {
 			Entry<Integer, Integer> loc = getCurrentLocation();
 			BinaryOps op = OpPrecTable.mapSymbolToOp(precedence, consumeToken());
-			System.out.println("Parsing: " + op + " at precedence: " + precedence);
+			//System.out.println("Parsing: " + op + " at precedence: " + precedence);
 			Expression rhs = parseBinaryOpExpression(precedence + 1);
 			lhs = new BinaryOp(lhs, op, rhs, loc);
 		}
@@ -188,7 +194,7 @@ public final class ExpressionParser extends ParserState {
 	 */
 	private Expression parseUnary() {
 		Entry<Integer, Integer> loc = getCurrentLocation();
-		Token.TokenType tokenType = getCurrentToken().type;
+		TokenType tokenType = getCurrentToken().type;
 		return switch (tokenType) {
 			case BITWISE_NOT -> {
 				consumeToken();
@@ -215,7 +221,7 @@ public final class ExpressionParser extends ParserState {
 	 */
 	private Expression parseLogicalNotExpression() {
 		Entry<Integer, Integer> loc = getCurrentLocation();
-		if (curTokenIsType(Token.TokenType.NOT)) {
+		if (curTokenIsType(TokenType.NOT)) {
 			consumeToken();
 			return new UnaryOp(UnaryOps.Not, parseLogicalNotExpression(), loc);
 		}
@@ -240,20 +246,20 @@ public final class ExpressionParser extends ParserState {
 		int modifyby;
 		boolean returnPrevious = false;
 		Expression result;
-		if (curTokenIsType(Token.TokenType.INC)) {
+		if (curTokenIsType(TokenType.INC)) {
 			consumeToken();
 			result = parseCall();
 			modifyby = 1;
-		} else if (curTokenIsType(Token.TokenType.DEC)) {
+		} else if (curTokenIsType(TokenType.DEC)) {
 			consumeToken();
 			result = parseCall();
 			modifyby = -1;
 		} else {
 			result = parseCall();
-			if (curTokenIsType(Token.TokenType.INC)) {
+			if (curTokenIsType(TokenType.INC)) {
 				consumeToken();
 				modifyby = 1;
-			} else if (curTokenIsType(Token.TokenType.DEC)) {
+			} else if (curTokenIsType(TokenType.DEC)) {
 				consumeToken();
 				modifyby = -1;
 			} else {
@@ -280,20 +286,20 @@ public final class ExpressionParser extends ParserState {
 	 * * *  Ident "(" Parameters ")"
 	 */
 	private Expression parseCall() {
-		if (curTokenIsType(Token.TokenType.IDENTIFIER)) {
+		if (curTokenIsType(TokenType.IDENTIFIER)) {
 			String identifier = consumeToken().text;
 			Entry<Integer, Integer> loc = getCurrentLocation();
-			if (curTokenIsType(Token.TokenType.LBRACKET)) {
+			if (curTokenIsType(TokenType.LBRACKET)) {
 				consumeToken();
 				Expression idx = parseExpression();
-				match(Token.TokenType.RBRACKET, "Lists require a closing brace.");
+				match(TokenType.RBRACKET, "Lists require a closing brace.");
 				return new ListAccess(identifier, idx, getCurrentLocation());
 			}
-			if (curTokenIsType(Token.TokenType.DOT)) {
+			if (curTokenIsType(TokenType.DOT)) {
 				consumeToken();
 				Expression rhs = parseExpression();
 				return new ScopeOf(identifier, rhs, getCurrentLocation());
-			} else if (curTokenIsType(Token.TokenType.LPAREN)) {
+			} else if (curTokenIsType(TokenType.LPAREN)) {
 				consumeToken();
 				List<Expression> params = parseExprParams();
 				return new Call(identifier, params, loc);
@@ -316,11 +322,11 @@ public final class ExpressionParser extends ParserState {
 	private List<Expression> parseExprParams() {
 		List<Expression> params = new ArrayList<>(32);
 
-		while (!curTokenIsType(Token.TokenType.RPAREN)) {
-			if (curTokenIsType(Token.TokenType.COMMA)) {
+		while (!curTokenIsType(TokenType.RPAREN)) {
+			if (curTokenIsType(TokenType.COMMA)) {
 				consumeToken();
 			} else {
-				if (curTokenIsType(Token.TokenType.EOF) || curTokenIsType(Token.TokenType.SEMICOLON)) {
+				if (curTokenIsType(TokenType.EOF) || curTokenIsType(TokenType.SEMICOLON)) {
 					Token currentToken = getCurrentToken();
 					throw new RuntimeException(
 							"Syntax error: Invalid function call. Parameter list is not terminated. Expected an identifier, comma, or closing parenthesis, but found "
@@ -370,7 +376,7 @@ public final class ExpressionParser extends ParserState {
 			case LPAREN -> {
 				consumeToken();
 				primitive = parseExpression();
-				match(Token.TokenType.LPAREN, "Error, unterminated parenthetical.");
+				match(TokenType.RPAREN, "Error, unterminated parenthetical.");
 			}
 			default -> {
 				Token currentToken = getCurrentToken();
@@ -380,12 +386,5 @@ public final class ExpressionParser extends ParserState {
 			}
 		}
 		return primitive;
-	}
-
-	private Statement parseStatement() {
-		Entry<Statement, Integer> block = StatementParser
-												  .parseStatement(getTokenStream().subList(getCurrentPosition(), getTokenStream().size()));
-		advanceLocation(block.value());
-		return block.key();
 	}
 }

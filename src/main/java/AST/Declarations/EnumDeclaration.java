@@ -7,19 +7,15 @@
 package AST.Declarations;
 
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Declaration;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class EnumDeclaration extends Declaration {
 	public final String name;
-
-	public record EnumMember(String name, long id) {
-
-	}
-
 	public final List<EnumMember> members;
 
 	public EnumDeclaration(String name, List<EnumMember> members, Entry<Integer, Integer> loc) {
@@ -31,5 +27,29 @@ public final class EnumDeclaration extends Declaration {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "EnumDeclaration";
+	}
+
+	@Override
+	public String toString() {
+		String enumMembers;
+		if (members != null && !members.isEmpty()) {
+			enumMembers = "{" + members.stream().map(x -> "[" + x.name + ": " + x.id + "]").collect(Collectors.joining(", ")) + "}";
+		} else {
+			enumMembers = "{}";
+		}
+		enumMembers += "@(" + getLine() + ", " + getCharacter() + ")";
+		return "EnumDeclaration{name=" + name + ", members=" + enumMembers + "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
+	public record EnumMember(String name, long id) {
+		@Override
+		public String toString() {
+			return "{" + name + ", " + id + "}";
+		}
 	}
 }

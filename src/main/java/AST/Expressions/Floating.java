@@ -6,20 +6,31 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Floating extends Expression {
-	public final double num;
+	public final double value;
 
 	public Floating(double num, Entry<Integer, Integer> loc) {
 		super(loc.key(), loc.value());
-		this.num = num;
+		this.value = num;
 	}
 
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "Floating";
+	}
+
+	@Override
+	public String toString() {
+		return "Floating{" + value + "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

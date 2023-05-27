@@ -6,10 +6,9 @@
 
 package AST.Statements;
 
-import AST.Expression;
-import AST.Statement;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class DoWhile extends Statement {
 	public final Expression conditional;
@@ -24,5 +23,17 @@ public final class DoWhile extends Statement {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "DoWhile";
+	}
+
+	@Override
+	public String toString() {
+		return "DoWhile{conditional=" + conditional.toString() + ", body={" +
+			   body.toString() +
+			   "}}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

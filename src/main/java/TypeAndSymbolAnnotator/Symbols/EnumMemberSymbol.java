@@ -6,7 +6,7 @@
 
 package TypeAndSymbolAnnotator.Symbols;
 
-import TypeAndSymbolAnnotator.Symbol;
+import TypeAndSymbolAnnotator.*;
 
 public final class EnumMemberSymbol extends Symbol {
 	public final long id;

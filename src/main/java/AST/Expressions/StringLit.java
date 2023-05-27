@@ -6,20 +6,31 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class StringLit extends Expression {
-	public final String str;
+	public final String value;
 
 	public StringLit(String str, Entry<Integer, Integer> loc) {
 		super(loc.key(), loc.value());
-		this.str = str;
+		this.value = str;
 	}
 
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "String";
+	}
+
+	@Override
+	public String toString() {
+		return "StringLit{" + value + "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

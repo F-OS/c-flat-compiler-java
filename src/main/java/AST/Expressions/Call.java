@@ -6,11 +6,12 @@
 
 package AST.Expressions;
 
-import java.util.List;
+import AST.*;
+import utils.*;
+import visitor.*;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import java.util.*;
+import java.util.stream.*;
 
 public final class Call extends Expression {
 	public final String func;
@@ -26,4 +27,16 @@ public final class Call extends Expression {
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String nodeToString() {
+		return "Call";
+	}
+
+	@Override
+	public String toString() {
+		return "Call{name=" + func + ",\nparams=(" + params.stream().map(Expression::toString).collect(Collectors.joining(", ")) +
+			   ")\n}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
 }

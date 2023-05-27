@@ -6,9 +6,9 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class ListAccess extends Expression {
 	public final String ident;
@@ -23,5 +23,18 @@ public final class ListAccess extends Expression {
 	@Override
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String nodeToString() {
+		return "ListAccess";
+	}
+
+	@Override
+	public String toString() {
+		return "ListAccess{" +
+			   "ident=" + ident + ", index" +
+			   index.toString() +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
 	}
 }

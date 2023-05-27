@@ -6,9 +6,9 @@
 
 package AST.Expressions;
 
-import AST.Expression;
-import utils.Entry;
-import visitor.Visitor;
+import AST.*;
+import utils.*;
+import visitor.*;
 
 public final class Modify extends Expression {
 	public final Expression ident;
@@ -26,4 +26,17 @@ public final class Modify extends Expression {
 	public Object accept(Visitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String toString() {
+		return "Modify{" +
+			   "ident=" + ident + ", by=" +
+			   modifyBy.toString() + (returnPrevious ? ", returnPrevious=true" : ", returnPrevious=false") +
+			   "}@(" + getLine() + ", " + getCharacter() + ")";
+	}
+
+	public String nodeToString() {
+		return "Modify";
+	}
+
 }
